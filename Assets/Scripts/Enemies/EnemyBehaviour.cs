@@ -14,6 +14,8 @@ public class EnemyBehaviour : MonoBehaviour {
 	public bool sliping;
 	public bool shieldInvencibility;
 
+	private bool _invincibleSpearHit;
+
 	private void Awake()
 	{
 		health = GetComponent<EnemyHealth>();
@@ -26,10 +28,12 @@ public class EnemyBehaviour : MonoBehaviour {
 		
 		if(collision.gameObject.CompareTag("Spear") || collision.gameObject.CompareTag("SpearClone"))
 		{
-			if (collision.gameObject.GetComponent<SpearScript>().Moving)
+			if (collision.gameObject.GetComponent<SpearScript>().Moving && !_invincibleSpearHit)
 			{
 				SpearHit(collision.gameObject);
+				StartCoroutine(InvincibleAfterSpearHit(0.5f));
 			}
+			
 		}
 
 		if(collision.gameObject.CompareTag("Shield") && !shieldInvencibility)
@@ -83,6 +87,13 @@ public class EnemyBehaviour : MonoBehaviour {
 		shieldInvencibility = true;
 		yield return new WaitForSeconds(time);
 		shieldInvencibility = false;
+	}
+
+	IEnumerator InvincibleAfterSpearHit(float time)
+	{
+		_invincibleSpearHit = true;
+		yield return new WaitForSeconds(time);
+		_invincibleSpearHit = false;
 	}
 
 	virtual public void OnCollisionEnter2D(Collision2D collision)
