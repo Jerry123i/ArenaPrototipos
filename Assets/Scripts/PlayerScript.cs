@@ -28,6 +28,9 @@ public class PlayerScript : MonoBehaviour {
 	public float dodgeVelocity;
 	public float dodgeTime;
 
+	private bool splitShot = true;
+	private float _splitShotOffsset = 15f;
+	
 	private bool hasSpear;
 	public bool HasSpear
 	{
@@ -57,73 +60,80 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
-	private int health = 5;
+	private int _health = 5;
 	public int Health
 	{
 		get
 		{
-			return health;
+			return _health;
 		}
 
 		set
 		{
-			if(value < health)
+			if(value < _health)
 			{
-				TakeDamage(health - value);
+				TakeDamage(_health - value);
 			}
 
-			health = value;
+			_health = value;
 
-			uIControler.UpdateHealth(health);
+			uIControler.UpdateHealth(_health);
 
-			if(health <= 0)
+			if(_health <= 0)
 			{
 				Die();
 			}
 		}
 	}
 
-	void Start () {
+	private void Start () {
 		HasSpear = true;
 		uIControler = GetComponent<PlayerUIControler>();
-		uIControler.UpdateHealth(health);
+		uIControler.UpdateHealth(_health);
 		rb = GetComponent<Rigidbody2D>();
 	}
-	
-	void Update ()
+
+	private void Update ()
 	{
-		
+		if (Input.GetButtonDown("Fire2") && HasSpear)
+		{
+			ShootSpear();
+			
+		}
+		else if (Input.GetButtonDown("Fire2") && !HasSpear)
+		{
+			var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
+			if (!c.Moving)
+			{
+				//StartCoroutine(c.Kratos());
+				StartCoroutine(c.KratosFunc());
+			}
+			
+		}
+		if (Input.GetButtonDown("Fire1") && !isOnShieldCooldown)
+		{
+			ShieldBash();
+		}
+		if (Input.GetButtonDown("Jump") && (movmentDirection.magnitude != 0) && !isDodging && !isOnDodgeCooldown)
+		{
+			StartCoroutine(Dodge(movmentDirection));
+		}
 	}
 
 	private void FixedUpdate()
 	{
 		movmentDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-		if (!isDodging)
-		{
-			Rotation();
-			Movement();
-		}
-
-		if (Input.GetButton("Fire2"))
-		{
-			ShootSpear();
-		}
-		if (Input.GetButton("Fire1") && !isOnShieldCooldown)
-		{
-			ShieldBash();
-		}
-		if (Input.GetButton("Jump") && (movmentDirection.magnitude != 0) && !isDodging && !isOnDodgeCooldown)
-		{
-			StartCoroutine(Dodge(movmentDirection));
-		}
-
+		if (isDodging) return;
+		Rotation();
+		Movement();
 	}
+	
 
 	private void Rotation()
 	{
-		Vector3 mouseScreen = Input.mousePosition;
-		Vector3 mouse = Camera.main.ScreenToWorldPoint(mouseScreen);
+		var mouseScreen = Input.mousePosition;
+		var mouse = Camera.main.ScreenToWorldPoint(mouseScreen);
 
 		transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(mouse.y - transform.position.y, mouse.x - transform.position.x) * Mathf.Rad2Deg - 90);
 	}
@@ -141,23 +151,35 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
+	
+	
+	
 	private void ShootSpear()
 	{
-		if (hasSpear)
+		if (!hasSpear) return;
+		HasSpear = false;
+
+		if (!splitShot)
 		{
-			HasSpear = false;
-
-			GameObject newSpear;
-
-			newSpear = Instantiate(spear, transform.position, transform.rotation);
+			var newSpear = Instantiate(spear, transform.position, transform.rotation);
 			newSpear.transform.Translate(0, 0.5f, 0, Space.Self);
+		}
+		else
+		{
+			var spear1 = Instantiate(spear, transform.position, transform.rotation);
+			spear1.transform.Translate(0, 0.5f, 0, Space.Self);
+			var spear2 = Instantiate(spear, transform.position, Quaternion.AngleAxis(-_splitShotOffsset, Vector3.forward) * transform.rotation);
+			spear2.transform.Translate(0, 0.5f, 0, Space.Self);
+			var spear3 = Instantiate(spear, transform.position, Quaternion.AngleAxis(_splitShotOffsset, Vector3.forward) * transform.rotation);
+			spear3.transform.Translate(0, 0.5f, 0, Space.Self);
+			spear2.tag = "SpearClone";
+			spear3.tag = "SpearClone";
 		}
 	}
 
 	private void ShieldBash()
 	{
-		GameObject newShield;
-		newShield = Instantiate(shield, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
+		var newShield = Instantiate(shield, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
 		newShield.transform.Translate(0, 0.7f, 0, Space.Self);
 		StartCoroutine(ShieldCooldoown());
 		
@@ -167,7 +189,7 @@ public class PlayerScript : MonoBehaviour {
 	private IEnumerator Dodge(Vector2 direction)
 	{
 		isDodging = true;
-		this.gameObject.layer = 8;
+		gameObject.layer = 8;
 		GetComponent<SpriteRenderer>().color = new Vector4(1, 1, 1, 0.5f);
 		StartCoroutine(DodgeCooldown());
 		
@@ -182,7 +204,7 @@ public class PlayerScript : MonoBehaviour {
 		}
 
 		isDodging = false;
-		this.gameObject.layer = 0;
+		gameObject.layer = 0;
 		GetComponent<SpriteRenderer>().color = Color.white;
 
 	}
@@ -205,7 +227,7 @@ public class PlayerScript : MonoBehaviour {
 
 	private void Die()
 	{
-		Destroy(this.gameObject);
+		Destroy(gameObject);
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 

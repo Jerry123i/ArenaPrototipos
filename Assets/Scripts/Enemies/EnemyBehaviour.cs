@@ -23,7 +23,8 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	virtual public void OnTriggerEnter2D(Collider2D collision)
 	{
-		if(collision.gameObject.tag == "Spear")
+		
+		if(collision.gameObject.CompareTag("Spear") || collision.gameObject.CompareTag("SpearClone"))
 		{
 			if (collision.gameObject.GetComponent<SpearScript>().Moving)
 			{
@@ -31,7 +32,7 @@ public class EnemyBehaviour : MonoBehaviour {
 			}
 		}
 
-		if(collision.gameObject.tag == "Shield" && !shieldInvencibility)
+		if(collision.gameObject.CompareTag("Shield") && !shieldInvencibility)
 		{
 			ShieldHit(collision.gameObject);
 		}
