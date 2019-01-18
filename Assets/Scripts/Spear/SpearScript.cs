@@ -67,7 +67,7 @@ public class SpearScript : MonoBehaviour {
 	{
 		var playerScript = collision.GetComponent<PlayerScript>();
 		playerScript.HasSpear = true;
-		playerScript._hasKratos = true;
+		playerScript.HasKratos = true;
 		Destroy(gameObject, 0.05f);
 		
 	}

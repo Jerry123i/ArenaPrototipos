@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class PlayerScript : MonoBehaviour {
 
@@ -19,10 +20,10 @@ public class PlayerScript : MonoBehaviour {
 
 	Vector2 movmentDirection;
 
-	bool isOnShieldCooldown	= false;
-	bool isOnDodgeCooldown	= false;
+	bool isOnShieldCooldown;
+	bool isOnDodgeCooldown;
 
-	bool isDodging = false;
+	bool isDodging;
 
 	public float moveVelocity;
 	public float dodgeVelocity;
@@ -30,9 +31,11 @@ public class PlayerScript : MonoBehaviour {
 
 	// specials
 	private bool splitShot = false;
-	private float _splitShotOffsset = 15f;
+	private readonly float _splitShotOffsset = 15f;
 
-	public bool _hasKratos = true; 
+	[FormerlySerializedAs("_hasKratos")] public bool HasKratos = true;
+
+	public bool HasReflectShield = true;
 	
 	
 	private bool hasSpear;
@@ -107,12 +110,12 @@ public class PlayerScript : MonoBehaviour {
 		else if (Input.GetButtonDown("Fire2") && !HasSpear)
 		{
 			var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
-			if (!c.Moving && _hasKratos)
+			if (!c.Moving && HasKratos)
 			{
 				c.RotateToTarget(transform);
 				c.Moving = true;
 				c.catchable = true;
-				_hasKratos = false;
+				HasKratos = false;
 			}
 			
 		}
@@ -239,7 +242,7 @@ public class PlayerScript : MonoBehaviour {
 
 	private void TakeDamage(int dmg)
 	{
-		Debug.Log("DAMAGE " + dmg.ToString());
+		//Debug.Log("DAMAGE " + dmg.ToString());
 	}
 
 }

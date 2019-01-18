@@ -8,6 +8,8 @@ TagManager:
   - Spear
   - Shield
   - Enemy
+  - SpearClone
+  - Reflected
   layers:
   - Default
   - TransparentFX

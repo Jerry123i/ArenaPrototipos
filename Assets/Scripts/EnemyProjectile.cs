@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyProjectile : MonoBehaviour {
 
 	public float speed;
+	public bool reflected;
 
 	private void FixedUpdate()
 	{
@@ -13,21 +14,32 @@ public class EnemyProjectile : MonoBehaviour {
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		string tag = collision.gameObject.tag;
+		var objectTag = collision.gameObject.tag;
 
-		switch (tag)
+		switch (objectTag)
 		{
 			case "Wall":
-				Destroy(this.gameObject);
+				Destroy(gameObject);
 				break;
 
 			case "Player":
 				collision.gameObject.GetComponent<PlayerScript>().Health -= 1;
-				Destroy(this.gameObject);
+				Destroy(gameObject);
 				break;
 		}
-
-
 	}
 
+	private void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.CompareTag("Shield"))
+		{
+			if (GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>().HasReflectShield)
+			{
+				speed = -speed;
+				tag = "Reflected";
+				reflected = true;
+				gameObject.layer = 0;
+			}
+		}
+	}
 }

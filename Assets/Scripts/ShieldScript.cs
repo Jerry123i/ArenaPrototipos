@@ -17,7 +17,7 @@ public class ShieldScript : MonoBehaviour {
 	IEnumerator ShieldLifetime()
 	{
 		yield return new WaitForSeconds(shieldDuration);
-		Destroy(this.gameObject);
+		Destroy(gameObject);
 	}
 
 }

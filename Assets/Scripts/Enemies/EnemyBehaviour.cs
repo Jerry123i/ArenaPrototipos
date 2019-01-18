@@ -25,15 +25,12 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	virtual public void OnTriggerEnter2D(Collider2D collision)
 	{
-		
 		if(collision.gameObject.CompareTag("Spear") || collision.gameObject.CompareTag("SpearClone"))
 		{
 			if (collision.gameObject.GetComponent<SpearScript>().Moving && !_invincibleSpearHit)
 			{
-				SpearHit(collision.gameObject);
-				StartCoroutine(InvincibleAfterSpearHit(0.5f));
+				GetHit(collision);
 			}
-			
 		}
 
 		if(collision.gameObject.CompareTag("Shield") && !shieldInvencibility)
@@ -89,25 +86,37 @@ public class EnemyBehaviour : MonoBehaviour {
 		shieldInvencibility = false;
 	}
 
-	IEnumerator InvincibleAfterSpearHit(float time)
+	public IEnumerator InvincibleAfterSpearHit(float time)
 	{
 		_invincibleSpearHit = true;
 		yield return new WaitForSeconds(time);
 		_invincibleSpearHit = false;
 	}
 
+	public void GetHit(Collider2D collision)
+	{
+		SpearHit(collision.gameObject);
+		StartCoroutine(InvincibleAfterSpearHit(0.5f));
+	}
+
 	virtual public void OnCollisionEnter2D(Collision2D collision)
 	{
-		if(collision.gameObject.tag == "Player")
+		if(collision.gameObject.CompareTag("Player"))
 		{
 			HitPlayer(collision.gameObject);
 		}
-		if(collision.gameObject.tag == "Enemy")
+		if(collision.gameObject.CompareTag("Enemy"))
 		{			
 			if (collision.gameObject.GetComponent<EnemyBehaviour>().sliping && !sliping)
 			{
 				Slip(transform.position - collision.transform.position, 3, 0.5f);
 			}
+		}
+		if(collision.gameObject.CompareTag("Reflected"))
+		{
+			health.HealthPoints -= 1;
+			Stagger(transform.position - transform.position);
+			SpawnerControler.instance.AnouceHit();
 		}
 
 	}
