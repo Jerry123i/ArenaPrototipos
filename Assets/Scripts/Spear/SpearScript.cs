@@ -8,6 +8,7 @@ public class SpearScript : MonoBehaviour {
 	public int damage;
 
 	private bool moving;
+	public bool catchable;
 
 	private Collider2D col;
 
@@ -45,17 +46,17 @@ public class SpearScript : MonoBehaviour {
 
 	private void OnTriggerEnter2D(Collider2D collision)
 	{
-		if(collision.tag == "Player" && !Moving)
+		if((collision.CompareTag("Player") && !Moving ) | (collision.CompareTag("Player") && Moving && catchable))
 		{
 			PlayerPickup(collision);
 		}
 
-		if (collision.gameObject.tag == "Wall")
+		if (collision.gameObject.CompareTag("Wall"))
 		{
 			WallHit();
 		}
 
-		if(collision.gameObject.tag == "Enemy")
+		if(collision.gameObject.CompareTag("Enemy"))
 		{
 			EnemyHit(collision);
 		}
@@ -64,8 +65,11 @@ public class SpearScript : MonoBehaviour {
 
 	public virtual void PlayerPickup(Collider2D collision)
 	{
-		collision.GetComponent<PlayerScript>().HasSpear = true;
+		var playerScript = collision.GetComponent<PlayerScript>();
+		playerScript.HasSpear = true;
+		playerScript._hasKratos = true;
 		Destroy(gameObject, 0.05f);
+		
 	}
 
 	public virtual void WallHit()
@@ -78,54 +82,13 @@ public class SpearScript : MonoBehaviour {
 	{
 
 	}
-	
-	public IEnumerator Kratos()
-	{
-		var target = GameObject.FindGameObjectWithTag("Player").transform;
-		var vectorToTarget = target.position - transform.position;
-		var angleBetween = Vector3.Angle(transform.forward, vectorToTarget);
-		print(vectorToTarget);
-		var angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg - 90;
-		var q = Quaternion.AngleAxis(angle, Vector3.up);
-		transform.rotation = q;
-		
-		// moving towards player
-		var pos = target.position;
-		do
-		{
-			moving = true;
-			speed = 0;
-			print(transform.position.x);
-			print(transform.position.y);
-			transform.position = Vector2.MoveTowards(new Vector2(transform.position.x, transform.position.y).normalized,
-				pos, 2 * Time.deltaTime);
-			yield return new WaitForSeconds(0.001f);
-		} while (moving);
-		//PlayerPickup(target.gameObject.GetComponent<Collider2D>());
-	}
 
-	public IEnumerator KratosFunc()
+	public void RotateToTarget(Transform target)
 	{
-		var target = GameObject.FindGameObjectWithTag("Player").transform;
 		var vectorToTarget = target.position - transform.position;
-		var angleBetween = Vector3.Angle(transform.forward, vectorToTarget);
-		print(vectorToTarget);
-		print(angleBetween);
-		var angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
-		var q = Quaternion.AngleAxis(angle, Vector3.up);
-		transform.rotation = q;
-		
-		var pos = target.position;
-		do
-		{
-			moving = true;
-			speed = 0;
-			transform.Translate(transform.up * Time.deltaTime * 5);
-			yield return new WaitForSeconds(0.001f);
-		} while (moving);
-		
-		
-		
+		//var angleBetween = Vector3.Angle(transform.forward, vectorToTarget);
+		var angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg - 90;
+		transform.rotation = Quaternion.AngleAxis(angle, transform.forward);
 	}
 
 }

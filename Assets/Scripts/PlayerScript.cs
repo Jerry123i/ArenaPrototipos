@@ -28,8 +28,12 @@ public class PlayerScript : MonoBehaviour {
 	public float dodgeVelocity;
 	public float dodgeTime;
 
-	private bool splitShot = true;
+	// specials
+	private bool splitShot = false;
 	private float _splitShotOffsset = 15f;
+
+	public bool _hasKratos = true; 
+	
 	
 	private bool hasSpear;
 	public bool HasSpear
@@ -103,10 +107,12 @@ public class PlayerScript : MonoBehaviour {
 		else if (Input.GetButtonDown("Fire2") && !HasSpear)
 		{
 			var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
-			if (!c.Moving)
+			if (!c.Moving && _hasKratos)
 			{
-				//StartCoroutine(c.Kratos());
-				StartCoroutine(c.KratosFunc());
+				c.RotateToTarget(transform);
+				c.Moving = true;
+				c.catchable = true;
+				_hasKratos = false;
 			}
 			
 		}
