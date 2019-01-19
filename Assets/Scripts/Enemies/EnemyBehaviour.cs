@@ -43,8 +43,9 @@ public class EnemyBehaviour : MonoBehaviour {
 	virtual public void SpearHit(GameObject spear)
 	{
 		health.HealthPoints -= spear.GetComponent<SpearScript>().damage;
-		Stagger(transform.position - spear.transform.position);
-		SpawnerControler.instance.AnouceHit();
+		Stagger(transform.position - spear.transform.position);		
+		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
+		HypeMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
 	}
 
 	virtual public void ShieldHit(GameObject shield)
@@ -53,7 +54,8 @@ public class EnemyBehaviour : MonoBehaviour {
 		health.HealthPoints -= shieldScript.damage;
 		Slip((transform.position - shield.transform.position).normalized, shieldScript.pushMultiplier);
 		StartCoroutine(RemoveInvencibility(shieldScript.shieldDuration));
-		SpawnerControler.instance.AnouceHit();
+		//SpawnerControler.instance.AnouceHit();
+		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
 	}
 
 	void Slip(Vector2 direction , float strenghtK, float timeK = 1)

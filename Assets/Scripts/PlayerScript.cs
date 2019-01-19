@@ -9,6 +9,8 @@ public class PlayerScript : MonoBehaviour {
 	private PlayerUIControler uIControler;
 	private Rigidbody2D rb;
 
+	private Animator animator;
+
 	public Sprite wSpear;
 	public Sprite woutSpear;
 
@@ -80,6 +82,7 @@ public class PlayerScript : MonoBehaviour {
 			if(value < _health)
 			{
 				TakeDamage(_health - value);
+				ImpatianceMetter.instance.Notify(this, NotificationType.PLAYER_TOOK_DAMAGE);
 			}
 
 			_health = value;
@@ -93,11 +96,26 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
+	public bool IsDodging
+	{
+		get
+		{
+			return isDodging;
+		}
+
+		set
+		{
+			isDodging = value;
+			animator.SetBool("Dodging", value);
+		}
+	}
+
 	private void Start () {
 		HasSpear = true;
 		uIControler = GetComponent<PlayerUIControler>();
 		uIControler.UpdateHealth(_health);
 		rb = GetComponent<Rigidbody2D>();
+		animator = GetComponent<Animator>();
 	}
 
 	private void Update ()
@@ -123,7 +141,7 @@ public class PlayerScript : MonoBehaviour {
 		{
 			ShieldBash();
 		}
-		if (Input.GetButtonDown("Jump") && (movmentDirection.magnitude != 0) && !isDodging && !isOnDodgeCooldown)
+		if (Input.GetButtonDown("Jump") && (movmentDirection.magnitude != 0) && !IsDodging && !isOnDodgeCooldown)
 		{
 			StartCoroutine(Dodge(movmentDirection));
 		}
@@ -133,7 +151,7 @@ public class PlayerScript : MonoBehaviour {
 	{
 		movmentDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-		if (isDodging) return;
+		if (IsDodging) return;
 		Rotation();
 		Movement();
 	}
@@ -172,6 +190,7 @@ public class PlayerScript : MonoBehaviour {
 		{
 			var newSpear = Instantiate(spear, transform.position, transform.rotation);
 			newSpear.transform.Translate(0, 0.5f, 0, Space.Self);
+			HypeMetter.instance.Notify(this, NotificationType.PLAYER_SPEAR);
 		}
 		else
 		{
@@ -197,7 +216,7 @@ public class PlayerScript : MonoBehaviour {
 
 	private IEnumerator Dodge(Vector2 direction)
 	{
-		isDodging = true;
+		IsDodging = true;
 		gameObject.layer = 8;
 		GetComponent<SpriteRenderer>().color = new Vector4(1, 1, 1, 0.5f);
 		StartCoroutine(DodgeCooldown());
@@ -212,7 +231,7 @@ public class PlayerScript : MonoBehaviour {
 			yield return null;
 		}
 
-		isDodging = false;
+		IsDodging = false;
 		gameObject.layer = 0;
 		GetComponent<SpriteRenderer>().color = Color.white;
 
@@ -242,7 +261,7 @@ public class PlayerScript : MonoBehaviour {
 
 	private void TakeDamage(int dmg)
 	{
-		//Debug.Log("DAMAGE " + dmg.ToString());
+		GetComponent<Animator>().SetTrigger("Damage");
 	}
 
 }

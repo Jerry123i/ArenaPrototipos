@@ -75,7 +75,8 @@ public class SpearScript : MonoBehaviour {
 	public virtual void WallHit()
 	{
 		Moving = false;
-		HypeMetter.instance.FinishCombo();
+		//HypeMetter.instance.FinishCombo();
+		HypeMetter.instance.Notify(this, NotificationType.SPEAR_WALL);
 	}
 
 	public virtual void EnemyHit(Collider2D collision)

@@ -25,7 +25,7 @@ public class EnemyHealth : MonoBehaviour {
 
 			if (healthPoints <= 0)
 			{
-				HypeMetter.instance.comboTracker++;
+				HypeMetter.instance.Notify(this, NotificationType.ENEMY_KILLED);
 				Die();
 			}
 
@@ -36,7 +36,6 @@ public class EnemyHealth : MonoBehaviour {
 		HealthPoints = maxHealth;	
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		
 	}
@@ -54,7 +53,7 @@ public class EnemyHealth : MonoBehaviour {
 
 	virtual public void Die()
 	{
+		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_KILLED);
 		Destroy(this.gameObject);
-		SpawnerControler.instance.EnemyDied();
 	}
 }

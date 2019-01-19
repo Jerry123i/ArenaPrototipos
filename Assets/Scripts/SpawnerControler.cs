@@ -11,49 +11,6 @@ public class SpawnerControler : MonoBehaviour {
 	public List<WaveConfiguration> possibleWaves;
 	public List<SpawnPointScript> spawnPoints;
 
-	public float impatiance;
-	public float impatianceLimit = 20;
-	private float impatianceFactor = 1;
-	public float ImpatianceFactor
-	{
-		get
-		{
-			return impatianceFactor;
-		}
-
-		set
-		{
-			impatianceFactor = value;
-
-			if(impatianceFactor > 2.5f)
-			{
-				impatianceFactor = 2.5f;
-			}
-			if (impatianceFactor < 0.6f)
-			{
-				impatianceFactor = 0.6f;
-			}
-		}
-	}
-
-	public int NOfEnemies
-	{
-		get
-		{
-			return GameObject.FindGameObjectsWithTag("Enemy").Length;
-		}
-
-		set
-		{
-			nOfEnemies = value;
-		}
-	}
-
-	public float timeWoutHitting;
-
-	private int nOfEnemies;
-
-
 	private void Awake()
 	{
 		if(instance != null)
@@ -77,58 +34,20 @@ public class SpawnerControler : MonoBehaviour {
 
 	private void Update()
 	{
-		CheckHits();
-
-		impatiance += Time.deltaTime * ImpatianceFactor;
-		timeWoutHitting += Time.deltaTime;
-
-		if(impatiance >= impatianceLimit)
-		{
-			SpawnWave();			
-		}	
 
 	}
 
 	public void EnemyDied()
 	{
-		if(NOfEnemies <= 1)
-		{
-			SpawnWave();
-		}
-		else if(nOfEnemies == 2)
-		{
-			impatianceFactor *= 1.5f;
-		}
-		else if(nOfEnemies == 3)
-		{
-			impatianceFactor *= 1.2f;
-		}
 	}
 
-	void CheckHits()
-	{
-		if(timeWoutHitting >= 4.0f)
-		{
-			ImpatianceFactor *= 1.2f;
-			timeWoutHitting = 0;
-			Debug.Log("HIT SOMETHING!!");
-		}
-	}
 
 	//Isso provavelmente deveria ser feito com listners
 	public void AnouceHit()
 	{
-		timeWoutHitting = 0;
 	}
 
-	IEnumerator Loop()
-	{
-		SpawnWave();
-		yield return new WaitForSeconds(35.0f);
-		StartCoroutine(Loop());
-	}
-
-	void SpawnWave()
+	public void SpawnWave()
 	{
 		WaveConfiguration wave;
 		int special = RollSpecialEnemy();
@@ -176,9 +95,6 @@ public class SpawnerControler : MonoBehaviour {
 			}
 		}
 
-		impatiance = 0;
-		ImpatianceFactor = 1;
-
 	}
 	
 	int RollSpecialEnemy()
@@ -222,6 +138,10 @@ public class SpawnerControler : MonoBehaviour {
 
 	}
 
+	static public int NumberOfEnemies()
+	{
+		return GameObject.FindGameObjectsWithTag("Enemy").Length;
+	}
 
 	SpawnPointScript GetRandomSpawnPoint()
 	{
