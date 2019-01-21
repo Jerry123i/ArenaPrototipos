@@ -35,9 +35,6 @@ public class SpawnPointScript : MonoBehaviour {
 			case EnemyTemplate.DOUBLE:
 				n = 2;
 				break;
-			case EnemyTemplate.SWARM:
-				n = 3;
-				break;
 			default:
 				n = 1;
 				break;
@@ -79,9 +76,6 @@ public class SpawnPointScript : MonoBehaviour {
 					break;
 				case EnemyTemplate.DOUBLE:
 					//
-					break;
-				case EnemyTemplate.SWARM:
-					AlterSwarm(instance);
 					break;
 				default:
 					//
@@ -132,9 +126,9 @@ public class SpawnPointScript : MonoBehaviour {
 		Transform transform = go.transform;
 		SpriteRenderer sprite = go.GetComponent<SpriteRenderer>();
 
-		transform.localScale *= 0.85f;
-		brain.speed *= 2.1f;
-		behaviour.slipTime *= 1.2f;
+		transform.localScale *= 0.7f;
+		brain.speed *= 1.7f;
+		behaviour.slipTime *= 1.5f;
 
 		sprite.color = Color.blue;
 

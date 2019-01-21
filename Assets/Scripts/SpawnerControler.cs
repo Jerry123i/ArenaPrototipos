@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum EnemyTemplate { NONE, HEAVY, FAST, SWARM, DOUBLE};
+public enum EnemyTemplate { NONE, HEAVY, FAST, DOUBLE};
 
 public class SpawnerControler : MonoBehaviour {
 
 	public static SpawnerControler instance;
-
-	public List<WaveConfiguration> possibleWaves;
+	
 	public List<SpawnPointScript> spawnPoints;
+
+	[Header("Waves")]
+	public List<WaveConfiguration> possibleWaves1;
+	public List<WaveConfiguration> possibleWaves2;
+	public List<WaveConfiguration> possibleWaves3;
+	public List<WaveConfiguration> possibleWavesGtfo;
 
 	private void Awake()
 	{
@@ -53,7 +58,30 @@ public class SpawnerControler : MonoBehaviour {
 		int special = RollSpecialEnemy();
 		int a = 99;
 		int b = 99;
-		wave = possibleWaves[Random.Range(0, possibleWaves.Count)];
+
+		switch (ArenaControler.instance.CurrentStage)
+		{
+			case ArenaStage.STARTING:
+				wave = possibleWaves1[Random.Range(0, possibleWaves1.Count)];
+				break;
+			case ArenaStage.FIRST_STAGE:
+				wave = possibleWaves1[Random.Range(0, possibleWaves1.Count)];
+				break;
+			case ArenaStage.SECOND_STAGE:
+				wave = possibleWaves2[Random.Range(0, possibleWaves2.Count)];
+				break;
+			case ArenaStage.TIRD_STAGE:
+				wave = possibleWaves3[Random.Range(0, possibleWaves3.Count)];
+				break;
+			case ArenaStage.GTFO:
+				wave = possibleWavesGtfo[Random.Range(0, possibleWavesGtfo.Count)];
+				break;
+			default:
+				wave = possibleWaves1[Random.Range(0, possibleWaves1.Count)];
+				break;
+		}
+
+		
 
 		if(special > 0)
 		{
@@ -84,8 +112,6 @@ public class SpawnerControler : MonoBehaviour {
 				if(i == a || i == b)
 				{
 					GetRandomSpawnPoint().RecieveSpawnOrder(go, GetRandomEnemyTemplate());
-					
-					//Debug.Break();
 				}
 				else
 				{
@@ -95,7 +121,7 @@ public class SpawnerControler : MonoBehaviour {
 		}
 
 	}
-	
+
 	int RollSpecialEnemy()
 	{
 		//25 % de chance de 1 especial
@@ -119,12 +145,10 @@ public class SpawnerControler : MonoBehaviour {
 
 	EnemyTemplate GetRandomEnemyTemplate()
 	{
-		int n = Random.Range(0, 4);
+		int n = Random.Range(1, 4);
 
 		switch (n)
-		{
-			case 0:
-				return EnemyTemplate.SWARM;
+		{			
 			case 1:
 				return EnemyTemplate.DOUBLE;
 			case 2:
@@ -149,7 +173,7 @@ public class SpawnerControler : MonoBehaviour {
 
 }
 
- 
+
 //Isso foi um erro
 
 public struct EnemyAndCount

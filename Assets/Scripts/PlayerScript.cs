@@ -239,7 +239,7 @@ public class PlayerScript : MonoBehaviour {
 		isGrabing = false;
 		Debug.Log("FINISHED GRAB");
 		gameObject.layer = 8;
-		HypeMetter.instance.CurrentHype += grab.GetComponent<GrabScript>().duration * HypeMetter.instance.dropRate * HypeMetter.instance.maxHype;
+		HypeMetter.instance.CurrentHype += HypeMetter.instance.n * 3f;
 		FindObjectOfType<ArenaControler>().EndArena();
 	}
 
@@ -284,7 +284,7 @@ public class PlayerScript : MonoBehaviour {
 	{
 		Destroy(gameObject);
 		//SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-		HypeMetter.instance.CurrentHype -= HypeMetter.instance.tier1Value * 0.5f; //Fazer isso por Notify depois
+		HypeMetter.instance.CurrentHype -= HypeMetter.instance.tier1Value * 0.4f; //Fazer isso por Notify depois
 		FindObjectOfType<ArenaControler>().EndArena();
 	}
 

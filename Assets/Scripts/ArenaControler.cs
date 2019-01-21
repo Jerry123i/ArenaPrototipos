@@ -5,17 +5,92 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+public enum ArenaStage { STARTING, FIRST_STAGE, SECOND_STAGE, TIRD_STAGE, GTFO}
+
 public class ArenaControler : MonoBehaviour
 {
+	public static ArenaControler instance;
+
+	[Header("Stages")]
+	private ArenaStage currentStage = ArenaStage.STARTING;
+	public int startingDuration;
+	public int firstStageDuration;
+	public int secondStageDuration;
+	public int tirdStageDuration;
+
+	[Header("UI")]
 	public Image blackScreen;
 	public TextMeshProUGUI text;
+	public TextMeshProUGUI clockText;
+	public TextMeshProUGUI stageText;
+	private Coroutine clockRoutine;
+
+	private float clock = 0;
 
 	bool endScreenCompleted = false;
 
+	public float Clock
+	{
+		get
+		{
+			return clock;
+		}
+
+		private set
+		{
+			clock = value;
+			clockText.text = clock.ToString("0.00");
+
+			if(clock > tirdStageDuration)
+			{
+				CurrentStage = ArenaStage.GTFO;				
+			}
+			else if(clock > secondStageDuration)
+			{
+				CurrentStage = ArenaStage.TIRD_STAGE;
+			}
+			else if(clock > firstStageDuration)
+			{
+				CurrentStage = ArenaStage.SECOND_STAGE;
+			}
+			else if(clock > startingDuration)
+			{
+				CurrentStage = ArenaStage.FIRST_STAGE;
+			}
+		}
+	}
+
+	public ArenaStage CurrentStage
+	{
+		get
+		{
+			return currentStage;
+		}
+
+		set
+		{
+			currentStage = value;
+			stageText.text = currentStage.ToString();
+		}
+	}
+
 	private void Awake()
 	{
+		if (instance != null)
+		{
+			if (instance != this)
+			{
+				Destroy(this);
+			}
+		}
+		else
+		{
+			instance = this;
+		}
+
 		blackScreen.color = Color.clear;
 		text.color = new Color(1,1,1,0);
+		clockRoutine = StartCoroutine(TimePassing());
 	}
 
 	public void EndArena()
@@ -24,11 +99,11 @@ public class ArenaControler : MonoBehaviour
 		SpawnerControler spawner = SpawnerControler.instance;
 
 		StopAllEnemies();
+		StopCoroutine(clockRoutine);
 		spawner.enabled = false;
 		hypeMetter.dropRate = 0;
 		hypeMetter.baseDropRate = 0;
-		
-		//hypeMetter.enabled = false;
+				
 	
 		if(hypeMetter.CurrentHype >= hypeMetter.tier2Value)
 		{
@@ -43,6 +118,15 @@ public class ArenaControler : MonoBehaviour
 			StartCoroutine(EndScreen(0));
 		}
 
+	}
+
+	IEnumerator TimePassing()
+	{
+		while (true)
+		{
+			Clock += Time.deltaTime;
+		yield return null;
+		}
 	}
 
 	IEnumerator EndScreen(int result)
@@ -85,7 +169,7 @@ public class ArenaControler : MonoBehaviour
 		}
 	}
 
-	public void StopAllEnemies()
+	public static void StopAllEnemies()
 	{
 		foreach (EnemyBrain eB in FindObjectsOfType<EnemyBrain>())
 		{
