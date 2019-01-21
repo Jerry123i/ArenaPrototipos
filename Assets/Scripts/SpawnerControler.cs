@@ -69,8 +69,7 @@ public class SpawnerControler : MonoBehaviour {
 			}
 		}
 
-		Debug.Log("Wave: " + wave.name);
-		Debug.Log("Special: " + special.ToString());
+		//Debug.Log("Wave: " + wave.name);
 
 		for(int i = 0; i< wave.enemies.Count; i++)
 		{
@@ -85,7 +84,7 @@ public class SpawnerControler : MonoBehaviour {
 				if(i == a || i == b)
 				{
 					GetRandomSpawnPoint().RecieveSpawnOrder(go, GetRandomEnemyTemplate());
-					Debug.Log("Spawning Special");
+					
 					//Debug.Break();
 				}
 				else

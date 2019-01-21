@@ -9,7 +9,9 @@ public class HypeMetter : MonoBehaviour {
 	public float maxHype = 180;
 	public float v;
 	public float n;
+	public float baseDropRate;
 	public float dropRate;
+	public float resistance =1;
 
 	[Header("Tiers")]
 	public float tier1Value;
@@ -46,6 +48,22 @@ public class HypeMetter : MonoBehaviour {
 				currentHype = 0;
 			}
 
+			if(currentHype > tier1Value)
+			{
+				resistance = 0.75f;
+				dropRate = baseDropRate * 1.5f;
+			}
+			if(currentHype > tier2Value)
+			{
+				resistance = 0.55f;
+				dropRate = baseDropRate * 2.0f;
+			}
+			else
+			{
+				resistance = 1;
+				dropRate = baseDropRate;
+			}
+
 			hypeBar.fillAmount = currentHype / maxHype;
 		}
 	}
@@ -67,6 +85,7 @@ public class HypeMetter : MonoBehaviour {
 		}
 
 		SetMarkers();
+		dropRate = baseDropRate;
 	}
 
 	private void Update()
@@ -97,22 +116,26 @@ public class HypeMetter : MonoBehaviour {
 		//	}
 		//}
 		
+
 		string result = hits.ToString() + "/" + kills.ToString();
+		if(hits < 0 || kills < 0)
+		{
+			Debug.LogError("Hits or kills negative -> " + result);			
+			Debug.Break();
+		}
 
-		Debug.Log("CalculatePoints(result) = " + CalculatePoints(result).ToString());
 
-		CurrentHype += CalculatePoints(result);
+				
+		CurrentHype += CalculatePoints(result) * resistance;
 
 		hits = 0;
 		kills = 0;
 		killList.Clear();
-
 	}
 
 	float CalculatePoints(string values)
 	{
 
-		Debug.Log("values = " + values);
 
 		switch (values)
 		{
@@ -175,6 +198,9 @@ public class HypeMetter : MonoBehaviour {
 				killList = new List<object>();
 				break;
 			case NotificationType.SPEAR_WALL:
+				FinishCombo();
+				break;
+			case NotificationType.SPEAR_KRATOS_PICKUP:
 				FinishCombo();
 				break;
 		}

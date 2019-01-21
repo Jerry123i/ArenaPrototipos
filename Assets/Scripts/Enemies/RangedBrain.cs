@@ -11,9 +11,39 @@ public class RangedBrain : EnemyBrain {
 
 	public float timeBetweenShots;
 
+	private Coroutine firingRoutine;
+
+	public override EnemyStates State
+	{
+		get
+		{
+			return base.State;
+		}
+
+		set
+		{
+			base.State = value;
+
+			if (value == EnemyStates.IDLE)
+			{
+				if(firingRoutine == null)
+				{
+					firingRoutine = StartCoroutine(FiringLoop());
+				}
+			}
+
+			if(value == EnemyStates.STUNNED)
+			{
+				StopAllCoroutines();
+				firingRoutine = null;
+			}
+
+		}
+	}
+
 	private void Awake()
 	{
-		StartCoroutine(FiringLoop());
+		firingRoutine = StartCoroutine(FiringLoop());
 	}
 
 	public override void ChaseBehavior()
@@ -45,6 +75,7 @@ public class RangedBrain : EnemyBrain {
 
 	public IEnumerator FiringLoop()
 	{
+		
 		yield return new WaitForSeconds(timeBetweenShots);
 		FireProjectile();
 		StartCoroutine(FiringLoop());

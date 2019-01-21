@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public enum NotificationType { ENEMY_KILLED, ENEMY_HIT, PLAYER_TOOK_DAMAGE, PLAYER_SPEAR, SPEAR_WALL}
+public enum NotificationType { ENEMY_KILLED, ENEMY_HIT, PLAYER_TOOK_DAMAGE, PLAYER_SPEAR, SPEAR_WALL, SPEAR_KRATOS_PICKUP, TAUNT}
 
 public class ImpatianceMetter : MonoBehaviour
 {
@@ -122,6 +122,10 @@ public class ImpatianceMetter : MonoBehaviour
 			case NotificationType.PLAYER_TOOK_DAMAGE:
 				Impatiance -= max * 0.15f;
 				break;
+
+			case NotificationType.TAUNT:
+				Taunt();
+				break;
 		}
 
 	}
@@ -136,6 +140,11 @@ public class ImpatianceMetter : MonoBehaviour
 		SpawnerControler.instance.SpawnWave();
 		ImpatianceRate = 1;
 		Impatiance = 0;
+	}
+
+	private void Taunt()
+	{
+		CallWave();
 	}
 
 }

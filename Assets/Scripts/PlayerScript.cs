@@ -16,6 +16,8 @@ public class PlayerScript : MonoBehaviour {
 
 	public GameObject spear;
 	public GameObject shield;
+	public GameObject grab;
+	private GameObject grabInstance;
 
 	public float shieldCd = 2.0f;
 	public float dodgeCd = 3.5f;
@@ -26,6 +28,7 @@ public class PlayerScript : MonoBehaviour {
 	bool isOnDodgeCooldown;
 
 	bool isDodging;
+	public bool isGrabing;
 
 	public float moveVelocity;
 	public float dodgeVelocity;
@@ -82,7 +85,7 @@ public class PlayerScript : MonoBehaviour {
 			if(value < _health)
 			{
 				TakeDamage(_health - value);
-				ImpatianceMetter.instance.Notify(this, NotificationType.PLAYER_TOOK_DAMAGE);
+				
 			}
 
 			_health = value;
@@ -145,13 +148,21 @@ public class PlayerScript : MonoBehaviour {
 		{
 			StartCoroutine(Dodge(movmentDirection));
 		}
+		if (Input.GetButtonDown("Taunt"))
+		{
+			Taunt();
+		}
+		if (Input.GetButtonDown("Grab"))
+		{
+			Grab();
+		}
 	}
 
 	private void FixedUpdate()
 	{
 		movmentDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-		if (IsDodging) return;
+		if (IsDodging || isGrabing) return;
 		Rotation();
 		Movement();
 	}
@@ -179,7 +190,11 @@ public class PlayerScript : MonoBehaviour {
 	}
 
 	
-	
+	void Taunt()
+	{
+		ImpatianceMetter.instance.Notify(this, NotificationType.TAUNT);
+		animator.SetTrigger("Taunt");
+	}
 	
 	private void ShootSpear()
 	{
@@ -209,16 +224,29 @@ public class PlayerScript : MonoBehaviour {
 	{
 		var newShield = Instantiate(shield, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
 		newShield.transform.Translate(0, 0.7f, 0, Space.Self);
-		StartCoroutine(ShieldCooldoown());
-		
+		StartCoroutine(ShieldCooldoown());		
 	}
 
+	private void Grab()
+	{
+		grabInstance = Instantiate(grab, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
+		grabInstance.transform.Translate(0, 0.7f, 0, Space.Self);
+		grabInstance.GetComponent<GrabScript>().player = this;
+	}
+	public void FinishGrab()
+	{
+		//GG
+		isGrabing = false;
+		Debug.Log("FINISHED GRAB");
+		gameObject.layer = 8;
+		HypeMetter.instance.CurrentHype += grab.GetComponent<GrabScript>().duration * HypeMetter.instance.dropRate * HypeMetter.instance.maxHype;
+		FindObjectOfType<ArenaControler>().EndArena();
+	}
 
 	private IEnumerator Dodge(Vector2 direction)
 	{
 		IsDodging = true;
-		gameObject.layer = 8;
-		GetComponent<SpriteRenderer>().color = new Vector4(1, 1, 1, 0.5f);
+		gameObject.layer = 8;		
 		StartCoroutine(DodgeCooldown());
 		
 
@@ -232,8 +260,7 @@ public class PlayerScript : MonoBehaviour {
 		}
 
 		IsDodging = false;
-		gameObject.layer = 0;
-		GetComponent<SpriteRenderer>().color = Color.white;
+		gameObject.layer = 0;		
 
 	}
 
@@ -256,12 +283,19 @@ public class PlayerScript : MonoBehaviour {
 	private void Die()
 	{
 		Destroy(gameObject);
-		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+		//SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+		HypeMetter.instance.CurrentHype -= HypeMetter.instance.tier1Value * 0.5f; //Fazer isso por Notify depois
+		FindObjectOfType<ArenaControler>().EndArena();
 	}
 
 	private void TakeDamage(int dmg)
 	{
 		GetComponent<Animator>().SetTrigger("Damage");
+		ImpatianceMetter.instance.Notify(this, NotificationType.PLAYER_TOOK_DAMAGE);
+		if (isGrabing)
+		{
+			grabInstance.GetComponent<GrabScript>().Interupt();
+		}
 	}
 
 }

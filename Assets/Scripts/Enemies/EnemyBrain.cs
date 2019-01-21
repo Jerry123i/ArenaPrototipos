@@ -10,7 +10,7 @@ public class EnemyBrain : MonoBehaviour {
 
 	protected GameObject player;
 
-	public EnemyStates state;
+	protected EnemyStates state;
 
 	private Rigidbody2D rb;
 
@@ -26,8 +26,21 @@ public class EnemyBrain : MonoBehaviour {
 			player = value;
 			if(player == null)
 			{
-				state = EnemyStates.IDLE;
+				State = EnemyStates.IDLE;
 			}
+		}
+	}
+
+	public virtual EnemyStates State
+	{
+		get
+		{
+			return state;
+		}
+
+		set
+		{
+			state = value;
 		}
 	}
 
@@ -39,7 +52,7 @@ public class EnemyBrain : MonoBehaviour {
 
 	private void Update()
 	{
-		switch (state)
+		switch (State)
 		{
 			case EnemyStates.CHASE:
 				if(player != null)
@@ -93,7 +106,7 @@ public class EnemyBrain : MonoBehaviour {
 		player = GameObject.FindGameObjectWithTag("Player");
 		if (player != null)
 		{
-			state = EnemyStates.CHASE;
+			State = EnemyStates.CHASE;
 		}
 	}
 

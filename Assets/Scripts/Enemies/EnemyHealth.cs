@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum DamageType { SPEAR, SHIELD, PROJECTILE, UNDEFINED, GRAB};
+
 public class EnemyHealth : MonoBehaviour {
 
 	private int healthPoints;
@@ -14,19 +16,23 @@ public class EnemyHealth : MonoBehaviour {
 			return healthPoints;
 		}
 
-		set
+		private set
 		{
 			healthPoints = value;
 
-			if(healthPoints == 1)
+			if (healthPoints > maxHealth)
+			{
+				healthPoints = maxHealth;
+			}
+
+			if (healthPoints == 1)
 			{
 				SetVulnerability(true);
 			}
 
-			if (healthPoints <= 0)
+			if(healthPoints <= 0)
 			{
-				HypeMetter.instance.Notify(this, NotificationType.ENEMY_KILLED);
-				Die();
+				Die(DamageType.UNDEFINED);
 			}
 
 		}
@@ -51,9 +57,31 @@ public class EnemyHealth : MonoBehaviour {
 		}
 	}
 
-	virtual public void Die()
+	public void ModifyHealth(int value, DamageType damageType)
+	{
+		healthPoints += value;
+
+		if (healthPoints == 1)
+		{
+			SetVulnerability(true);
+		}
+
+		if (healthPoints <= 0)
+		{
+			Die(damageType);
+		}
+	}
+
+	virtual public void Die(DamageType damageType)
 	{
 		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_KILLED);
+
+		if(damageType == DamageType.SPEAR)
+		{
+			HypeMetter.instance.Notify(this, NotificationType.ENEMY_KILLED);
+
+		}
+
 		Destroy(this.gameObject);
 	}
 }

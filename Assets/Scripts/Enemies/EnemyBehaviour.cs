@@ -38,24 +38,33 @@ public class EnemyBehaviour : MonoBehaviour {
 			ShieldHit(collision.gameObject);
 		}
 
+		if (collision.gameObject.CompareTag("Grab") && health.HealthPoints == 1){
+			GrabHit(collision.gameObject);
+		}
+
 	}
 
 	virtual public void SpearHit(GameObject spear)
 	{
-		health.HealthPoints -= spear.GetComponent<SpearScript>().damage;
 		Stagger(transform.position - spear.transform.position);		
 		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
 		HypeMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
+		health.ModifyHealth(-spear.GetComponent<SpearScript>().damage, DamageType.SPEAR);
 	}
 
 	virtual public void ShieldHit(GameObject shield)
 	{
 		ShieldScript shieldScript = shield.GetComponent<ShieldScript>();		
-		health.HealthPoints -= shieldScript.damage;
+		health.ModifyHealth(-shieldScript.damage, DamageType.SHIELD);
 		Slip((transform.position - shield.transform.position).normalized, shieldScript.pushMultiplier);
 		StartCoroutine(RemoveInvencibility(shieldScript.shieldDuration));
-		//SpawnerControler.instance.AnouceHit();
 		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
+	}
+
+	virtual public void GrabHit(GameObject grab)
+	{
+		brain.State = EnemyStates.STUNNED;
+		grab.GetComponent<GrabScript>().ConfirmGrab(brain);
 	}
 
 	void Slip(Vector2 direction , float strenghtK, float timeK = 1)
@@ -63,7 +72,7 @@ public class EnemyBehaviour : MonoBehaviour {
 		rb.AddForce(direction * strenghtK, ForceMode2D.Impulse);
 		sliping = true;
 		StartCoroutine(StopMovement(slipTime * timeK));
-		brain.state = EnemyStates.STUNNED;
+		brain.State = EnemyStates.STUNNED;
 	}
 
 	void Stagger(Vector2 direction)
@@ -77,7 +86,7 @@ public class EnemyBehaviour : MonoBehaviour {
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = 0;
-		brain.state = EnemyStates.IDLE;
+		brain.State = EnemyStates.IDLE;
 		sliping = false;
 	}
 
@@ -116,7 +125,7 @@ public class EnemyBehaviour : MonoBehaviour {
 		}
 		if(collision.gameObject.CompareTag("Reflected"))
 		{
-			health.HealthPoints -= 1;
+			health.ModifyHealth(-1, DamageType.PROJECTILE);
 			Stagger(transform.position - transform.position);
 			SpawnerControler.instance.AnouceHit();
 		}

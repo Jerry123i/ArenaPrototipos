@@ -10,6 +10,7 @@ TagManager:
   - Enemy
   - SpearClone
   - Reflected
+  - Grab
   layers:
   - Default
   - TransparentFX

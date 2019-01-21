@@ -68,6 +68,12 @@ public class SpearScript : MonoBehaviour {
 		var playerScript = collision.GetComponent<PlayerScript>();
 		playerScript.HasSpear = true;
 		playerScript.HasKratos = true;
+
+		if (playerScript.HasKratos && Moving)
+		{
+			HypeMetter.instance.Notify(this, NotificationType.SPEAR_KRATOS_PICKUP);
+		}
+
 		Destroy(gameObject, 0.05f);
 		
 	}
