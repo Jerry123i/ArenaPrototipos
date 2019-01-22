@@ -121,14 +121,15 @@ public class PlayerScript : MonoBehaviour {
 	{
 		if (Input.GetButtonDown("Fire2") && HasSpear)
 		{
-			ShootSpear();
+			ShootSpear(); // this method contains normal shooting and split shot shooting
 		}
-		else if (Input.GetButtonDown("Fire2") && !HasSpear)
+		else if (Input.GetButtonDown("Fire2") && !HasSpear) // kratos handler is here
 		{
 			var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
 			// kratos power pull the spear back from wall
 			if (!c.Moving && _specialsController.HasKratos && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
 			{
+				Debug.Log("CARAI");
 				StartCoroutine(_specialsController.SpecialCooldown(SpecialsController.Specials.Kratos));
 			}
 			

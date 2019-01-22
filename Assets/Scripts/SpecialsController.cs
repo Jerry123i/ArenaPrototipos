@@ -62,6 +62,10 @@ public class SpecialsController : MonoBehaviour
 
     private void Update()
     {
+//        Debug.Log("Kratos :" + HasKratos);
+//        Debug.Log("Shield :" + HasReflectShield);
+//        Debug.Log("Bounce :" + HasSpearBounce);
+//        Debug.Log("Split :" + HasSplitShot);
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             ActivateSpecial(Specials.Kratos);
@@ -180,6 +184,7 @@ public class SpecialsController : MonoBehaviour
         Debug.Log("Shield :" + HasReflectShield);
         Debug.Log("Bounce :" + HasSpearBounce);
         Debug.Log("Split :" + HasSplitShot);
+        Debug.Log("------------------------------------------------------------");
         
     }
 }

@@ -68,7 +68,8 @@ public class SpearScript : MonoBehaviour {
 		var playerScript = collision.GetComponent<PlayerScript>();
 		var specialsController = collision.GetComponent<SpecialsController>();
 		playerScript.HasSpear = true;
-		specialsController.HasKratos = true;
+		
+		//specialsController.HasKratos = true;
 
 		if (specialsController.HasKratos && Moving)
 		{
