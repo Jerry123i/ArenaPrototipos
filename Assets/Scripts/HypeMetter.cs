@@ -130,7 +130,10 @@ public class HypeMetter : MonoBehaviour {
 
 		hits = 0;
 		kills = 0;
-		killList.Clear();
+		if (killList != null)
+		{
+			killList.Clear();
+		}
 	}
 
 	float CalculatePoints(string values)
@@ -190,7 +193,11 @@ public class HypeMetter : MonoBehaviour {
 				break;
 			case NotificationType.ENEMY_HIT:
 				hits++;
-				killList.Add(value);
+				//Debug.Log(killList);
+				if (killList != null)
+				{
+					killList.Add(value);					
+				}
 				break;
 			case NotificationType.PLAYER_TOOK_DAMAGE:
 				break;

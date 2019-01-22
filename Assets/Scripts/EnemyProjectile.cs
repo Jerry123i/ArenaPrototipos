@@ -33,8 +33,10 @@ public class EnemyProjectile : MonoBehaviour {
 	{
 		if (other.CompareTag("Shield"))
 		{
-			if (GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>().HasReflectShield)
+			var specialsController = GameObject.FindGameObjectWithTag("Player").GetComponent<SpecialsController>();
+			if (specialsController.HasReflectShield && !specialsController.SpecialOnCd && specialsController.SpecialReady)
 			{
+				StartCoroutine(specialsController.SpecialCooldown(SpecialsController.Specials.ReflectShield));
 				speed = -speed;
 				tag = "Reflected";
 				reflected = true;

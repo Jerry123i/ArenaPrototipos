@@ -66,10 +66,11 @@ public class SpearScript : MonoBehaviour {
 	public virtual void PlayerPickup(Collider2D collision)
 	{
 		var playerScript = collision.GetComponent<PlayerScript>();
+		var specialsController = collision.GetComponent<SpecialsController>();
 		playerScript.HasSpear = true;
-		playerScript.HasKratos = true;
+		specialsController.HasKratos = true;
 
-		if (playerScript.HasKratos && Moving)
+		if (specialsController.HasKratos && Moving)
 		{
 			HypeMetter.instance.Notify(this, NotificationType.SPEAR_KRATOS_PICKUP);
 		}

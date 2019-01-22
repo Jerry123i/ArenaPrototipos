@@ -18,6 +18,9 @@ public class PlayerScript : MonoBehaviour {
 	public GameObject shield;
 	public GameObject grab;
 	private GameObject grabInstance;
+	
+	private SpecialsController _specialsController;
+	
 
 	public float shieldCd = 2.0f;
 	public float dodgeCd = 3.5f;
@@ -33,14 +36,6 @@ public class PlayerScript : MonoBehaviour {
 	public float moveVelocity;
 	public float dodgeVelocity;
 	public float dodgeTime;
-
-	// specials
-	private bool splitShot = false;
-	private readonly float _splitShotOffsset = 15f;
-
-	[FormerlySerializedAs("_hasKratos")] public bool HasKratos = true;
-
-	public bool HasReflectShield = true;
 	
 	
 	private bool hasSpear;
@@ -119,6 +114,7 @@ public class PlayerScript : MonoBehaviour {
 		uIControler.UpdateHealth(_health);
 		rb = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
+		_specialsController = GetComponent<SpecialsController>();
 	}
 
 	private void Update ()
@@ -126,17 +122,14 @@ public class PlayerScript : MonoBehaviour {
 		if (Input.GetButtonDown("Fire2") && HasSpear)
 		{
 			ShootSpear();
-			
 		}
 		else if (Input.GetButtonDown("Fire2") && !HasSpear)
 		{
 			var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
-			if (!c.Moving && HasKratos)
+			// kratos power pull the spear back from wall
+			if (!c.Moving && _specialsController.HasKratos && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
 			{
-				c.RotateToTarget(transform);
-				c.Moving = true;
-				c.catchable = true;
-				HasKratos = false;
+				StartCoroutine(_specialsController.SpecialCooldown(SpecialsController.Specials.Kratos));
 			}
 			
 		}
@@ -201,19 +194,23 @@ public class PlayerScript : MonoBehaviour {
 		if (!hasSpear) return;
 		HasSpear = false;
 
-		if (!splitShot)
+		// normal shooting
+		if (!_specialsController.HasSplitShot | !_specialsController.SpecialReady)
 		{
 			var newSpear = Instantiate(spear, transform.position, transform.rotation);
 			newSpear.transform.Translate(0, 0.5f, 0, Space.Self);
 			HypeMetter.instance.Notify(this, NotificationType.PLAYER_SPEAR);
 		}
-		else
+		
+		// split shot shooting
+		else if (_specialsController.HasSplitShot && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
 		{
+			StartCoroutine(_specialsController.SpecialCooldown(SpecialsController.Specials.SplitShot));
 			var spear1 = Instantiate(spear, transform.position, transform.rotation);
 			spear1.transform.Translate(0, 0.5f, 0, Space.Self);
-			var spear2 = Instantiate(spear, transform.position, Quaternion.AngleAxis(-_splitShotOffsset, Vector3.forward) * transform.rotation);
+			var spear2 = Instantiate(spear, transform.position, Quaternion.AngleAxis(-_specialsController.SplitShotOffsset, Vector3.forward) * transform.rotation);
 			spear2.transform.Translate(0, 0.5f, 0, Space.Self);
-			var spear3 = Instantiate(spear, transform.position, Quaternion.AngleAxis(_splitShotOffsset, Vector3.forward) * transform.rotation);
+			var spear3 = Instantiate(spear, transform.position, Quaternion.AngleAxis(_specialsController.SplitShotOffsset, Vector3.forward) * transform.rotation);
 			spear3.transform.Translate(0, 0.5f, 0, Space.Self);
 			spear2.tag = "SpearClone";
 			spear3.tag = "SpearClone";

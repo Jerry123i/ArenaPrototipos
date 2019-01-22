@@ -10,10 +10,17 @@ public class PlayerUIControler : MonoBehaviour {
 
 	public GameObject cdDodge;
 	public GameObject cdShield;
+	public GameObject SpecialBar;
 
 	public float dodgeClock = 0;
 	public float shieldClock = 0;
 
+	private void Awake()
+	{
+		SpecialBar = GameObject.Find("SpecialCD");
+		SpecialBar.SetActive(false);
+	}
+	
 	public void UpdateHealth(int hp)
 	{
 		int currentHp = healthBar.transform.childCount;
@@ -75,6 +82,21 @@ public class PlayerUIControler : MonoBehaviour {
 		shieldClock = 0;
 	}
 
+	public IEnumerator SpecialCooldownBarController(float cd)
+	{
+		SpecialBar.SetActive(true);
+		SpecialBar.GetComponent<Image>().fillAmount = 0;
+		var startTime = 0f;
+        
+		do
+		{
+			startTime += Time.deltaTime;
+			SpecialBar.GetComponent<Image>().fillAmount = startTime / cd;
+			yield return null;
 
+		} while (startTime < cd);
+
+		SpecialBar.SetActive(false);
+	}
 
 }

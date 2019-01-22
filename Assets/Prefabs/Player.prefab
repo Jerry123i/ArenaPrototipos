@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 50355167383827696}
   - component: {fileID: 114020138630130022}
   - component: {fileID: 3302342197183737841}
+  - component: {fileID: 5682772196475131669}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -105,6 +106,7 @@ MonoBehaviour:
   grab: {fileID: 1836559443705624, guid: 7d9d8d7be7d60894488fd4cedc843aa5, type: 3}
   shieldCd: 1.9
   dodgeCd: 3.3
+  isGrabing: 0
   moveVelocity: 8
   dodgeVelocity: 13.5
   dodgeTime: 0.5
@@ -184,6 +186,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &5682772196475131669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265949365953284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2854c9ada58a3e40a8ead4a30dfc6cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1729574994763978
 GameObject:
   m_ObjectHideFlags: 0
