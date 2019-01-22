@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Mime;
+using TMPro;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -54,18 +55,10 @@ public class SpecialsController : MonoBehaviour
     private void Start()
     {
         _uIControler = GetComponent<PlayerUIControler>();
-        Debug.Log("Kratos :" + HasKratos);
-        Debug.Log("Shield :" + HasReflectShield);
-        Debug.Log("Bounce :" + HasSpearBounce);
-        Debug.Log("Split :" + HasSplitShot);
     }
 
     private void Update()
     {
-//        Debug.Log("Kratos :" + HasKratos);
-//        Debug.Log("Shield :" + HasReflectShield);
-//        Debug.Log("Bounce :" + HasSpearBounce);
-//        Debug.Log("Split :" + HasSplitShot);
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             ActivateSpecial(Specials.Kratos);
@@ -153,6 +146,7 @@ public class SpecialsController : MonoBehaviour
 
     private void ActivateSpecial(Specials special)
     {
+        var specialText = GameObject.Find("SpecialText").GetComponent<TextMeshProUGUI>();
         switch (special)
         {
             case Specials.Kratos:
@@ -160,31 +154,29 @@ public class SpecialsController : MonoBehaviour
                 HasReflectShield = false;
                 HasSplitShot = false;
                 HasSpearBounce = false;
+                specialText.text = "Kratos";
                 break;
             case Specials.ReflectShield:
                 HasKratos = false;
                 HasReflectShield = true;
                 HasSplitShot = false;
                 HasSpearBounce = false;
+                specialText.text = "Reflect Shield";
                 break;
             case Specials.SplitShot:
                 HasKratos = false;
                 HasReflectShield = false;
                 HasSplitShot = true;
                 HasSpearBounce = false;
+                specialText.text = "Split Shot";
                 break;
             case Specials.SpearBounce:
                 HasKratos = false;
                 HasReflectShield = false;
                 HasSplitShot = false;
                 HasSpearBounce = true;
+                specialText.text = "Spear Bounce";
                 break;
         }
-        Debug.Log("Kratos :" + HasKratos);
-        Debug.Log("Shield :" + HasReflectShield);
-        Debug.Log("Bounce :" + HasSpearBounce);
-        Debug.Log("Split :" + HasSplitShot);
-        Debug.Log("------------------------------------------------------------");
-        
     }
 }
