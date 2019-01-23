@@ -87,7 +87,7 @@ public class SpecialsController : MonoBehaviour
         }
 
 
-        _specialParticle.SetActive(_charge > 0);
+        _specialParticle.SetActive(_charge > 0 && GetComponent<PlayerScript>().HasSpear);
         var emissionModule = _specialParticle.GetComponent<ParticleSystem>().emission;
         emissionModule.rateOverTime = Mathf.Pow(17, _charge);
 
@@ -115,7 +115,7 @@ public class SpecialsController : MonoBehaviour
         {
             StartCoroutine(test());
         }
-        if (Input.GetButton("Fire2") && _charge < _maxCharge)
+        if (Input.GetButton("Fire2") && _charge < _maxCharge && !SpecialOnCd)
         {
             _charge += Time.deltaTime;
             SpecialReady = false;
@@ -213,7 +213,7 @@ public class SpecialsController : MonoBehaviour
 
     IEnumerator test()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
         _charge = 0;
     }
 }
