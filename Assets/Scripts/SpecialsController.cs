@@ -26,6 +26,9 @@ public class SpecialsController : MonoBehaviour
 
     public bool SpecialReady;
     private GameObject _specialParticle;
+
+    private float _charge;
+    private readonly float _maxCharge = 1.5f;
     
     // kratos
     public bool HasKratos;
@@ -56,10 +59,16 @@ public class SpecialsController : MonoBehaviour
     private void Start()
     {
         _uIControler = GetComponent<PlayerUIControler>();
+        _charge = 0;
     }
 
     private void Update()
     {
+        if (HasSpearBounce || HasSplitShot)
+        {
+            ChargeSpecial();
+        }
+        
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             ActivateSpecial(Specials.Kratos);
@@ -78,29 +87,47 @@ public class SpecialsController : MonoBehaviour
         }
 
 
-        if (SpecialReady)
-        {
-            _specialParticle.SetActive(true);
-        }
-        else
-        {
-            _specialParticle.SetActive(false);
-        }
-        
+        _specialParticle.SetActive(_charge > 0);
+        var emissionModule = _specialParticle.GetComponent<ParticleSystem>().emission;
+        emissionModule.rateOverTime = Mathf.Pow(17, _charge);
+
         if (SpecialOnCd)
         {
             SpecialReady = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            if (!SpecialOnCd)
-            {
-                SpecialReady = true;
-            }
-        }
+//        if (Input.GetKeyDown(KeyCode.F))
+//        {
+//            if (!SpecialOnCd)
+//            {
+//                SpecialReady = true;
+//            }
+//        }
     }
 
+    private void ChargeSpecial()
+    {
+        if (_charge >= _maxCharge && GetComponent<PlayerScript>().HasSpear)
+        {
+            SpecialReady = true;
+        }
+        if (Input.GetButtonUp("Fire2") && _charge >= _maxCharge)
+        {
+            StartCoroutine(test());
+        }
+        if (Input.GetButton("Fire2") && _charge < _maxCharge)
+        {
+            _charge += Time.deltaTime;
+            SpecialReady = false;
+        }
+
+        if (Input.GetButtonUp("Fire2") && _charge < _maxCharge)
+        {
+            _charge = 0;
+            SpecialReady = false;
+        }
+    }
+    
     public IEnumerator SpecialCooldown(Specials special)
     {
         switch (special)
@@ -182,5 +209,11 @@ public class SpecialsController : MonoBehaviour
                 specialText.text = "Spear Bounce";
                 break;
         }
+    }
+
+    IEnumerator test()
+    {
+        yield return new WaitForSeconds(0.5f);
+        _charge = 0;
     }
 }

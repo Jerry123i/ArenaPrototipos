@@ -119,7 +119,7 @@ public class PlayerScript : MonoBehaviour {
 
 	private void Update ()
 	{
-		if (Input.GetButtonDown("Fire2") && HasSpear)
+		if (Input.GetButtonUp("Fire2") && HasSpear)
 		{
 			ShootSpear(); // this method contains normal shooting and split shot shooting
 		}
