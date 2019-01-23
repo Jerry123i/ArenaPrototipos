@@ -34,7 +34,7 @@ public class EnemyProjectile : MonoBehaviour {
 		if (other.CompareTag("Shield"))
 		{
 			var specialsController = GameObject.FindGameObjectWithTag("Player").GetComponent<SpecialsController>();
-			if (specialsController.HasReflectShield && !specialsController.SpecialOnCd && specialsController.SpecialReady)
+			if (specialsController.HasReflectShield && !specialsController.SpecialOnCd)
 			{
 				StartCoroutine(specialsController.SpecialCooldown(SpecialsController.Specials.ReflectShield));
 				speed = -speed;

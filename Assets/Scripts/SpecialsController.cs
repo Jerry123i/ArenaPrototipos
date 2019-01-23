@@ -39,6 +39,7 @@ public class SpecialsController : MonoBehaviour
 
     // spear bounce
     public bool HasSpearBounce = true;
+    public int TotalBounces = 3;
 
 
     private void Awake()
@@ -137,9 +138,12 @@ public class SpecialsController : MonoBehaviour
                 StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.SpearBounceCd));
                 HasSpearBounce = false;
                 SpecialOnCd = true;
+                var c2 = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
+                c2.Moving = false;
                 yield return new WaitForSeconds((float)SpecialsCooldowns.SpearBounceCd);
                 HasSpearBounce = true;
                 SpecialOnCd = false;
+                TotalBounces = 3;
                 break;
         }
     }

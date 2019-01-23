@@ -127,9 +127,8 @@ public class PlayerScript : MonoBehaviour {
 		{
 			var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
 			// kratos power pull the spear back from wall
-			if (!c.Moving && _specialsController.HasKratos && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
+			if (!c.Moving && _specialsController.HasKratos && !_specialsController.SpecialOnCd)
 			{
-				Debug.Log("CARAI");
 				StartCoroutine(_specialsController.SpecialCooldown(SpecialsController.Specials.Kratos));
 			}
 			
@@ -183,8 +182,8 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
-	
-	void Taunt()
+
+	private void Taunt()
 	{
 		ImpatianceMetter.instance.Notify(this, NotificationType.TAUNT);
 		animator.SetTrigger("Taunt");
