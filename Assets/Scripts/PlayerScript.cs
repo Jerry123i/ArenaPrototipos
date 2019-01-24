@@ -32,6 +32,7 @@ public class PlayerScript : MonoBehaviour {
 
 	bool isDodging;
 	public bool isGrabing;
+	[FormerlySerializedAs("_isCharging")] public bool IsCharging;
 
 	public float moveVelocity;
 	public float dodgeVelocity;
@@ -137,6 +138,12 @@ public class PlayerScript : MonoBehaviour {
 		{
 			ShieldBash();
 		}
+		// shield charge special handler
+		if (Input.GetButtonUp("Fire1") && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
+		{
+			ShieldCharge();
+			
+		}
 		if (Input.GetButtonDown("Jump") && (movmentDirection.magnitude != 0) && !IsDodging && !isOnDodgeCooldown)
 		{
 			StartCoroutine(Dodge(movmentDirection));
@@ -156,8 +163,12 @@ public class PlayerScript : MonoBehaviour {
 		movmentDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
 		if (IsDodging || isGrabing) return;
-		Rotation();
-		Movement();
+		if (!IsCharging)
+		{
+			Rotation();
+			Movement();
+		}
+		
 	}
 	
 
@@ -195,7 +206,7 @@ public class PlayerScript : MonoBehaviour {
 		HasSpear = false;
 
 		// normal shooting
-		if (!_specialsController.HasSplitShot | !_specialsController.SpecialReady)
+		if ((!_specialsController.HasSplitShot || !_specialsController.SpecialReady))
 		{
 			var newSpear = Instantiate(spear, transform.position, transform.rotation);
 			newSpear.transform.Translate(0, 0.5f, 0, Space.Self);
@@ -203,7 +214,7 @@ public class PlayerScript : MonoBehaviour {
 		}
 		
 		// split shot shooting
-		else if (_specialsController.HasSplitShot && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
+		else if (_specialsController.HasSplitShot && !_specialsController.SpecialOnCd && _specialsController.SpecialReady && !_specialsController.HasFastSpear)
 		{
 			StartCoroutine(_specialsController.SpecialCooldown(SpecialsController.Specials.SplitShot));
 			var spear1 = Instantiate(spear, transform.position, transform.rotation);
@@ -215,13 +226,28 @@ public class PlayerScript : MonoBehaviour {
 			spear2.tag = "SpearClone";
 			spear3.tag = "SpearClone";
 		}
+		else if (_specialsController.HasFastSpear && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
+		{
+			var newSpear = Instantiate(spear, transform.position, transform.rotation);
+			newSpear.transform.Translate(0, 0.5f, 0, Space.Self);
+			HypeMetter.instance.Notify(this, NotificationType.PLAYER_SPEAR);
+		}
 	}
 
 	private void ShieldBash()
 	{
 		var newShield = Instantiate(shield, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
 		newShield.transform.Translate(0, 0.7f, 0, Space.Self);
-		StartCoroutine(ShieldCooldoown());		
+		StartCoroutine(ShieldCooldoown());
+	}
+
+	private void ShieldCharge()
+	{
+		StartCoroutine(_specialsController.SpecialCooldown(SpecialsController.Specials.ShieldCharge));
+		var newShield = Instantiate(shield, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
+		newShield.transform.localScale = new Vector3(1.7f, 1.7f, 0);
+		newShield.transform.Translate(0, 0.7f, 0, Space.Self);
+		StartCoroutine(ChargeForward());
 	}
 
 	private void Grab()
@@ -261,7 +287,7 @@ public class PlayerScript : MonoBehaviour {
 
 	}
 
-	IEnumerator ShieldCooldoown()
+	private IEnumerator ShieldCooldoown()
 	{
 		isOnShieldCooldown = true;
 		StartCoroutine(uIControler.StartShieldClock(shieldCd));
@@ -269,12 +295,33 @@ public class PlayerScript : MonoBehaviour {
 		isOnShieldCooldown = false;
 	}
 
-	IEnumerator DodgeCooldown()
+	private IEnumerator DodgeCooldown()
 	{
 		isOnDodgeCooldown = true;
 		StartCoroutine(uIControler.StartDodgeClock(dodgeCd));
 		yield return new WaitForSeconds(dodgeCd);
 		isOnDodgeCooldown = false;
+	}
+
+	private IEnumerator ChargeForward()
+	{
+		var i = 0;
+		var direction = Vector3.up / 3;
+		IsCharging = true;
+		var rb = GetComponent<Rigidbody2D>();
+		//rb.isKinematic = true;
+		//GetComponent<CircleCollider2D>().enabled = false;
+		do
+		{
+			rb.velocity = Vector3.zero;
+			transform.Translate(direction);
+			yield return new WaitForSeconds(0.01f);
+			i++;
+		} while (i < 30);
+		IsCharging = false;
+		_specialsController.Charge = 0;
+		//rb.isKinematic = false;
+		//GetComponent<CircleCollider2D>().enabled = true;
 	}
 
 	private void Die()

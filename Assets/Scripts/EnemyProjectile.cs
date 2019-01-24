@@ -23,7 +23,11 @@ public class EnemyProjectile : MonoBehaviour {
 				break;
 
 			case "Player":
-				collision.gameObject.GetComponent<PlayerScript>().Health -= 1;
+				if (!collision.gameObject.GetComponent<PlayerScript>().IsCharging)
+				{
+					collision.gameObject.GetComponent<PlayerScript>().Health -= 1;
+					collision.gameObject.GetComponent<SpecialsController>().Charge = 0;
+				}
 				Destroy(gameObject);
 				break;
 		}

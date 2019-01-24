@@ -16,6 +16,8 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	private bool _invincibleSpearHit;
 
+	private PlayerScript player;
+
 	private void Awake()
 	{
 		health = GetComponent<EnemyHealth>();
@@ -25,6 +27,8 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	virtual public void OnTriggerEnter2D(Collider2D collision)
 	{
+		player = GameObject.Find("Player").GetComponent<PlayerScript>();
+		
 		if(collision.gameObject.CompareTag("Spear") || collision.gameObject.CompareTag("SpearClone"))
 		{
 			if (collision.gameObject.GetComponent<SpearScript>().Moving && !_invincibleSpearHit)
@@ -33,9 +37,14 @@ public class EnemyBehaviour : MonoBehaviour {
 			}
 		}
 
-		if(collision.gameObject.CompareTag("Shield") && !shieldInvencibility)
+		if(collision.gameObject.CompareTag("Shield") && !shieldInvencibility && !player.IsCharging)
 		{
 			ShieldHit(collision.gameObject);
+		}
+
+		if (collision.gameObject.CompareTag("Shield") && !shieldInvencibility && player.IsCharging)
+		{
+			ShieldChargeHit(collision.gameObject);
 		}
 
 		if (collision.gameObject.CompareTag("Grab") && health.HealthPoints == 1){
@@ -46,20 +55,43 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	virtual public void SpearHit(GameObject spear)
 	{
-		Stagger(transform.position - spear.transform.position);		
+		Stagger(transform.position - spear.transform.position);
 		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
 		HypeMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
-		health.ModifyHealth(-spear.GetComponent<SpearScript>().damage, DamageType.SPEAR);
+		health.ModifyHealth(-spear.GetComponent<SpearScript>().Damage, DamageType.SPEAR);
 	}
 
 	virtual public void ShieldHit(GameObject shield)
 	{
-		ShieldScript shieldScript = shield.GetComponent<ShieldScript>();		
+		var shieldScript = shield.GetComponent<ShieldScript>();
 		health.ModifyHealth(-shieldScript.damage, DamageType.SHIELD);
 		Slip((transform.position - shield.transform.position).normalized, shieldScript.pushMultiplier);
 		StartCoroutine(RemoveInvencibility(shieldScript.shieldDuration));
 		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
 	}
+
+	private void ShieldChargeHit(GameObject shield)
+	{
+		var shieldScript = shield.GetComponent<ShieldScript>();
+		health.ModifyHealth(-shieldScript.damage, DamageType.SHIELD);
+		Slip((transform.position - shield.transform.position).normalized, shieldScript.pushMultiplier * 4);
+		StartCoroutine(RemoveInvencibility(shieldScript.shieldDuration));
+		ImpatianceMetter.instance.Notify(this, NotificationType.ENEMY_HIT);
+	}
+
+	/*IEnumerator test(GameObject shield)
+	{
+		var i = 0;
+		var x = Random.Range(-2f, 2f);
+		var y = Random.Range(-2f, 2f);
+		var v = new Vector3(x, y, 0);
+		do
+		{
+			transform.position = shield.transform.position + v;
+			i++;
+		} while (i < 10);
+
+	}*/
 
 	virtual public void GrabHit(GameObject grab)
 	{
@@ -134,7 +166,12 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	virtual public void HitPlayer(GameObject player)
 	{
-		player.GetComponent<PlayerScript>().Health -= 1;
+		var playerScript= player.GetComponent<PlayerScript>();
+		if (!playerScript.IsCharging)
+		{
+			playerScript.Health -= 1;
+			player.GetComponent<SpecialsController>().Charge = 0;
+		}
 		SpawnerControler.instance.AnouceHit();
 	}
 

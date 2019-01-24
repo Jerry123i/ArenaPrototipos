@@ -1,16 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class SpearScript : MonoBehaviour {
 
-	public float speed;
-	public int damage;
+	[FormerlySerializedAs("speed")] public float Speed;
+	[FormerlySerializedAs("damage")] public int Damage;
 
-	private bool moving;
-	public bool catchable;
+	private bool _moving;
+	[FormerlySerializedAs("catchable")] public bool Catchable;
 
-	private Collider2D col;
+	private Collider2D _col;
 
 	private SpecialsController _specialsController;
 
@@ -18,25 +19,34 @@ public class SpearScript : MonoBehaviour {
 	{
 		get
 		{
-			return moving;
+			return _moving;
 		}
 
 		set
 		{
-			moving = value;
+			_moving = value;
 			
 		}
 	}
 
+	public bool Rotating;
+	
 	private void Awake()
 	{
-		col = GetComponent<Collider2D>();
+		_col = GetComponent<Collider2D>();
 		Moving = true;
 	}
 
 	private void Start()
 	{
 		_specialsController = GameObject.Find("Player").GetComponent<SpecialsController>();
+
+		// fast spear behaviour handler
+		if (_specialsController.HasFastSpear && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
+		{
+			Damage = Damage * _specialsController.FastDamageMultiplier;	
+		}
+		
 	}
 
 	private void Update()
@@ -51,19 +61,29 @@ public class SpearScript : MonoBehaviour {
 
 	private void FixedUpdate()
 	{
-		if (Moving)
+		// Fast spear behaviour handler
+		if (Moving && _specialsController.HasFastSpear && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
 		{
-			transform.Translate(Vector3.up * speed);
+			transform.Translate(Vector3.up * Speed * _specialsController.FastSpeedMultiplier);
 		}
-		else if (CompareTag("SpearClone"))
+		else if (Moving)
+		{
+			transform.Translate(Vector3.up * Speed);
+		}
+		// split shot behaviour handler
+		else if (CompareTag("SpearClone") && !_moving)
 		{
 			Destroy(gameObject);
+		}
+		else if (Rotating)
+		{
+			Debug.Log("RODANDO");
 		}
 	}
 
 	private void OnTriggerEnter2D(Collider2D collision)
 	{
-		if((collision.CompareTag("Player") && !Moving ) | (collision.CompareTag("Player") && Moving && catchable))
+		if((collision.CompareTag("Player") && !Moving ) | (collision.CompareTag("Player") && Moving && Catchable))
 		{
 			PlayerPickup(collision);
 		}
@@ -97,11 +117,19 @@ public class SpearScript : MonoBehaviour {
 
 	public virtual void WallHit()
 	{
+		
 		if (!_specialsController.HasSpearBounce)
 		{
 			Moving = false;
 			//HypeMetter.instance.FinishCombo();
 		}
+		
+		// Fast spear cooldown counting
+		if (_specialsController.HasFastSpear && !_specialsController.SpecialOnCd && Damage == 2) // GAMBIARRA
+		{
+			GameObject.Find("Player").GetComponent<SpecialsController>().FastSpearLeaveCd();
+		}
+		
 		else if (_specialsController.HasSpearBounce && _specialsController.TotalBounces > 0 && !_specialsController.SpecialOnCd && _specialsController.SpecialReady) // wall hit when you have spear bounce on and bounces left
 		{
 			RaycastHit2D hit;
