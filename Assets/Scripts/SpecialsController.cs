@@ -5,6 +5,7 @@ using System.Net.Mime;
 using TMPro;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -135,7 +136,6 @@ public class SpecialsController : MonoBehaviour
         }
         else
         {
-            Debug.Log("ALOHOMORA");
             _specialParticle.SetActive(Charge > 0);
         }
         
@@ -166,11 +166,6 @@ public class SpecialsController : MonoBehaviour
         {
             StartCoroutine(LittleDelay(0.2f));
         }
-        if (Input.GetButtonUp("Fire1") && Charge >= _maxCharge)
-        {
-            Debug.Log("ANGSIONGOIANOIGNASIO");
-        }
-        
         
         if (Input.GetButton("Fire2") && Charge < _maxCharge && !SpecialOnCd && !HasShieldCharge)
         {
@@ -178,7 +173,7 @@ public class SpecialsController : MonoBehaviour
             SpecialReady = false;
         }
 
-        if (Input.GetButton("Fire1") && Charge < _maxCharge && !SpecialOnCd)
+        if (Input.GetButton("Fire1") && Charge < _maxCharge && !SpecialOnCd && HasShieldCharge)
         {
             Charge += Time.deltaTime;
             SpecialReady = false;
@@ -188,7 +183,7 @@ public class SpecialsController : MonoBehaviour
             Charge = 0;
             SpecialReady = false;
         }
-        if (Input.GetButtonUp("Fire1") && Charge < _maxCharge)
+        if (Input.GetButtonUp("Fire1") && Charge < _maxCharge && HasShieldCharge)
         {
             Charge = 0;
             SpecialReady = false;

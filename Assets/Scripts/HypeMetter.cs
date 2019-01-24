@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class HypeMetter : MonoBehaviour {
@@ -91,6 +92,10 @@ public class HypeMetter : MonoBehaviour {
 	private void Update()
 	{
 		CurrentHype -= Time.deltaTime * dropRate * maxHype;
+		if (Input.GetKey(KeyCode.F))
+		{
+			SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+		}
 	}
 
 	private void SetMarkers()
