@@ -144,7 +144,7 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	virtual public void OnCollisionEnter2D(Collision2D collision)
 	{
-		if(collision.gameObject.CompareTag("Player"))
+		if (collision.gameObject.CompareTag("Player") && !collision.gameObject.GetComponent<PlayerScript>().GetIsInvulnerable(EnemyDamageTypes.MELEE))
 		{
 			HitPlayer(collision.gameObject);
 		}

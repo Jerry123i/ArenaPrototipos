@@ -23,7 +23,8 @@ public class EnemyProjectile : MonoBehaviour {
 				break;
 
 			case "Player":
-				if (!collision.gameObject.GetComponent<PlayerScript>().IsCharging)
+				//if (!collision.gameObject.GetComponent<PlayerScript>().IsCharging)
+				if (!collision.gameObject.GetComponent<PlayerScript>().GetIsInvulnerable(EnemyDamageTypes.RANGED))
 				{
 					collision.gameObject.GetComponent<PlayerScript>().Health -= 1;
 					collision.gameObject.GetComponent<SpecialsController>().Charge = 0;

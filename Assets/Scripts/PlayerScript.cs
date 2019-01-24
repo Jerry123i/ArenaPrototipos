@@ -1,8 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+
+[Flags] public enum EnemyDamageTypes{
+
+	NONE = 0,
+	MELEE = 1,
+	RANGED = 2,
+	ALL = 3
+
+}
 
 public class PlayerScript : MonoBehaviour {
 
@@ -31,7 +41,10 @@ public class PlayerScript : MonoBehaviour {
 	bool isOnDodgeCooldown;
 
 	bool isDodging;
-	public bool isGrabing;
+	private bool isGrabing;
+	public bool isLockedMovment;
+	public bool isLockedAtack;
+	private EnemyDamageTypes isInvulnerable;
 	[FormerlySerializedAs("_isCharging")] public bool IsCharging;
 
 	public float moveVelocity;
@@ -80,8 +93,7 @@ public class PlayerScript : MonoBehaviour {
 		{
 			if(value < _health)
 			{
-				TakeDamage(_health - value);
-				
+				TakeDamage(_health - value);				
 			}
 
 			_health = value;
@@ -109,6 +121,47 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
+	public bool IsGrabing
+	{
+		get
+		{
+			return isGrabing;
+		}
+
+		set
+		{
+			isGrabing = value;
+			isLockedMovment = value;
+			isLockedAtack = value;
+		}
+	}
+
+	public EnemyDamageTypes IsInvulnerable
+	{
+		protected get
+		{
+			return isInvulnerable;
+		}
+
+		set
+		{
+			isInvulnerable = value;
+			if(isInvulnerable == EnemyDamageTypes.ALL)
+			{
+				animator.SetBool("Invulnerable", true);
+			}
+			else
+			{
+				animator.SetBool("Invulnerable", false);
+			}
+		}
+	}
+
+	public bool GetIsInvulnerable(EnemyDamageTypes damageType)
+	{
+		return (damageType & IsInvulnerable) != 0;
+	}
+
 	private void Start () {
 		HasSpear = true;
 		uIControler = GetComponent<PlayerUIControler>();
@@ -120,11 +173,11 @@ public class PlayerScript : MonoBehaviour {
 
 	private void Update ()
 	{
-		if (Input.GetButtonUp("Fire2") && HasSpear)
+		if (Input.GetButtonUp("Fire2") && HasSpear && !isLockedAtack)
 		{
 			ShootSpear(); // this method contains normal shooting and split shot shooting
 		}
-		else if (Input.GetButtonDown("Fire2") && !HasSpear) // kratos handler is here
+		else if (Input.GetButtonDown("Fire2") && !HasSpear && !isLockedAtack) // kratos handler is here
 		{
 			var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
 			// kratos power pull the spear back from wall
@@ -134,12 +187,12 @@ public class PlayerScript : MonoBehaviour {
 			}
 			
 		}
-		if (Input.GetButtonDown("Fire1") && !isOnShieldCooldown)
+		if (Input.GetButtonDown("Fire1") && !isOnShieldCooldown && !isLockedAtack)
 		{
 			ShieldBash();
 		}
 		// shield charge special handler
-		if (Input.GetButtonUp("Fire1") && !_specialsController.SpecialOnCd && _specialsController.SpecialReady)
+		if (Input.GetButtonUp("Fire1") && !_specialsController.SpecialOnCd && _specialsController.SpecialReady &&!isLockedAtack)
 		{
 			ShieldCharge();
 			
@@ -162,13 +215,11 @@ public class PlayerScript : MonoBehaviour {
 	{
 		movmentDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-		if (IsDodging || isGrabing) return;
-		if (!IsCharging)
-		{
-			Rotation();
-			Movement();
-		}
-		
+		if (isLockedMovment) return;
+
+		Rotation();
+		Movement();
+
 	}
 	
 
@@ -239,6 +290,7 @@ public class PlayerScript : MonoBehaviour {
 		var newShield = Instantiate(shield, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
 		newShield.transform.Translate(0, 0.7f, 0, Space.Self);
 		StartCoroutine(ShieldCooldoown());
+		StartCoroutine(InvulnerabilityCooldown(newShield.GetComponent<ShieldScript>().shieldDuration + 1f, EnemyDamageTypes.MELEE));
 	}
 
 	private void ShieldCharge()
@@ -269,22 +321,40 @@ public class PlayerScript : MonoBehaviour {
 	private IEnumerator Dodge(Vector2 direction)
 	{
 		IsDodging = true;
+		isLockedMovment = true;
 		gameObject.layer = 8;		
 		StartCoroutine(DodgeCooldown());
 		
 
 		float clock = 0;
 
-		while(clock <= dodgeTime)
+		while(clock <= (dodgeTime*0.9f))
 		{
 			transform.Translate(direction.normalized * dodgeVelocity * Time.deltaTime, Space.World);
 			clock += Time.deltaTime;
 			yield return null;
 		}
 
+		isLockedMovment = false;
+
+		while(clock <= dodgeTime)
+		{
+			clock += Time.deltaTime;
+			yield return null;
+		}
+
 		IsDodging = false;
+
+
 		gameObject.layer = 0;		
 
+	}
+
+	private IEnumerator InvulnerabilityCooldown(float time, EnemyDamageTypes damageTypes)
+	{
+		IsInvulnerable = damageTypes;
+		yield return new WaitForSeconds(time);
+		IsInvulnerable = EnemyDamageTypes.NONE;
 	}
 
 	private IEnumerator ShieldCooldoown()
@@ -340,6 +410,7 @@ public class PlayerScript : MonoBehaviour {
 		{
 			grabInstance.GetComponent<GrabScript>().Interupt();
 		}
+		InvulnerabilityCooldown(1.0f, (EnemyDamageTypes.MELEE | EnemyDamageTypes.RANGED));
 	}
 
 }

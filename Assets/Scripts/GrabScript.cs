@@ -44,7 +44,7 @@ public class GrabScript : MonoBehaviour
 		StopCoroutine(enumerator);
 		enumerator = StartCoroutine(HoldDuration());
 		grabedEnemy = enemy;
-		player.isGrabing = true;
+		player.IsGrabing = true;
 	}
 
 	public void Interupt()
@@ -52,7 +52,7 @@ public class GrabScript : MonoBehaviour
 		Debug.Log("GRAB INTERRUPTED");
 		StopCoroutine(enumerator);
 		grabedEnemy.State = EnemyStates.IDLE;
-		player.isGrabing = false;
+		player.IsGrabing = false;
 		Destroy(this.gameObject);
 	}
 
