@@ -208,10 +208,10 @@ public class PlayerScript : MonoBehaviour {
 		if (Input.GetButtonDown("Grab"))
 		{
 			Grab();
-		}
-	}
+        }
+    }
 
-	private void FixedUpdate()
+    private void FixedUpdate()
 	{
 		movmentDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
