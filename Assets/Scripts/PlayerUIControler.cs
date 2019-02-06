@@ -17,7 +17,7 @@ public class PlayerUIControler : MonoBehaviour {
 
 	private void Awake()
 	{
-		SpecialBar = GameObject.Find("SpecialCD");
+		//SpecialBar = GameObject.Find("SpecialCD");
 		SpecialBar.SetActive(false);
 	}
 	

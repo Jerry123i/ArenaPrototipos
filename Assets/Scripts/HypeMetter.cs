@@ -166,7 +166,7 @@ public class HypeMetter : MonoBehaviour {
 			case "1/2":
 				return (v / 6 + n);
 			case "0/3":
-				return v / 2;
+				return ((v / 2) + n);
 			case "4/0":
 				return 4 * n;
 			case "3/1":
