@@ -27,6 +27,9 @@ public class ArenaControler : MonoBehaviour
 
 	private float clock = 0;
 
+	public GameObject nextStageButton;
+	public GameObject returnButton;
+
 	bool endScreenCompleted = false;
 
 	public float Clock
@@ -141,6 +144,7 @@ public class ArenaControler : MonoBehaviour
 		{
 			case 0:
 				text.text = "Parece que a platéia achou uma bosta";
+				
 				break;
 			case 1:
 				text.text = "Até que foi Ok ein";
@@ -155,6 +159,13 @@ public class ArenaControler : MonoBehaviour
 			blackScreen.color = new Color(0, 0, 0, blackScreen.color.a + (0.3f * Time.deltaTime));
 			text.color = new Color(1, 1, 1, text.color.a + (0.5f * Time.deltaTime));
 			yield return null;
+		}
+
+		returnButton.SetActive(true);
+
+		if(result != 0 && nextStageButton != null)
+		{
+			nextStageButton.SetActive(true);
 		}
 
 		endScreenCompleted = true;
@@ -175,6 +186,16 @@ public class ArenaControler : MonoBehaviour
 		{
 			eB.State = EnemyStates.STUNNED;
 		}
+	}
+
+	public void RestartScene()
+	{
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+	}
+
+	public void LoadScene(string sceneName)
+	{
+		SceneManager.LoadScene(sceneName);
 	}
 
 }

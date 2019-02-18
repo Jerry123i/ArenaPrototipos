@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b280b5ac1cfeb04ab912b0384ed73cf, type: 3}
+  m_Name: MixWithBrick
+  m_EditorClassIdentifier: 
+  enemies:
+  - {fileID: 1530821978029170, guid: e76992e2448f2fb4f9523c8c7d69b97a, type: 3}
+  - {fileID: 1530821978029170, guid: e76992e2448f2fb4f9523c8c7d69b97a, type: 3}
+  - {fileID: 1530821978029170, guid: 44d09f5020d26e346974e79ea52487ca, type: 3}
+  - {fileID: 1530821978029170, guid: 44d09f5020d26e346974e79ea52487ca, type: 3}
+  - {fileID: 1530821978029170, guid: 53667ebb9207bff4589e666c3965a3d5, type: 3}
