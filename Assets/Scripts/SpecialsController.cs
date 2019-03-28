@@ -25,7 +25,10 @@ public class SpecialsController : MonoBehaviour
         RotatingSpearCd = 2
     }
     
-    public bool SpecialOnCd;
+    private bool specialOnCd;
+	private float specialMetter;
+	private float maxSpecial = 100;
+
     private PlayerUIControler _uIControler;
 
     public bool SpecialReady;
@@ -61,8 +64,42 @@ public class SpecialsController : MonoBehaviour
     // Rotating spear
     public bool HasRotatingSpear;
 
+	public bool SpecialOnCd
+	{
+		get
+		{
+			return SpecialMetter >= maxSpecial;
+		}
 
-    private void Awake()
+		set
+		{
+			specialOnCd = value;
+			if (value)
+				SpecialMetter = maxSpecial;
+		}
+	}
+
+	public float SpecialMetter
+	{
+		get
+		{
+			return specialMetter;
+		}
+
+		set
+		{
+			specialMetter = value;
+			if (specialMetter < 0)
+				specialMetter = 0;
+			if (specialMetter > maxSpecial)
+				specialMetter = maxSpecial;
+
+			_uIControler.SpecialBar.GetComponent<Image>().fillAmount = specialMetter / maxSpecial;
+
+		}
+	}
+
+	private void Awake()
     {
         HasKratos = false;
         HasReflectShield = false;
@@ -79,6 +116,10 @@ public class SpecialsController : MonoBehaviour
         Charge = 0;
         FastSpeedMultiplier = 3;
         FastDamageMultiplier = 2;
+
+		HasKratos = true;
+		HasShieldCharge = true;
+
     }
 
     private void Update()
@@ -86,14 +127,20 @@ public class SpecialsController : MonoBehaviour
         //if(SpecialReady) Debug.Log(SpecialReady);
         if ((HasSpearBounce || HasSplitShot || HasFastSpear || HasRotatingSpear) && GetComponent<PlayerScript>().HasSpear)
         {
-            ChargeSpecial();
+            ChargeSpearSpecial();
         }
 
         if (HasShieldCharge)
         {
-            ChargeSpecial();
+            ChargeShieldSpecial();
         }
+
+		if (Input.GetKeyDown("p"))
+		{
+			specialMetter += 10;
+		}
         
+		/**
         if (Input.GetKeyDown(KeyCode.Alpha1) && !_choseSpecial)
         {
             ActivateSpecial(Specials.Kratos);
@@ -129,6 +176,7 @@ public class SpecialsController : MonoBehaviour
             ActivateSpecial(Specials.RotatingSpear);
             _choseSpecial = true;
         }
+	**/
 
         if (!HasShieldCharge)
         {
@@ -148,47 +196,63 @@ public class SpecialsController : MonoBehaviour
         }
     }
 
-    private void ChargeSpecial()
+    private void ChargeSpearSpecial()
     {
         //Debug.Log(_charge);
         // Here the special is ready to be used when button is lifted up
-        if (Charge >= _maxCharge && GetComponent<PlayerScript>().HasSpear && !HasShieldCharge)
+        if (Charge >= _maxCharge && GetComponent<PlayerScript>().HasSpear)
         {
             SpecialReady = true;
         }
-        if (Charge >= _maxCharge && HasShieldCharge)
-        {
-            SpecialReady = true;
-        }
+
         
         // Little delay so the special can be used before we set Special Ready to false
-        if (Input.GetButtonUp("Fire2") && Charge >= _maxCharge && !HasShieldCharge)
+        if (Input.GetButtonUp("Fire2") && Charge >= _maxCharge)
         {
             StartCoroutine(LittleDelay(0.2f));
         }
         
-        if (Input.GetButton("Fire2") && Charge < _maxCharge && !SpecialOnCd && !HasShieldCharge)
+        if (Input.GetButton("Fire2") && Charge < _maxCharge && !SpecialOnCd )
         {
             Charge += Time.deltaTime;
             SpecialReady = false;
         }
 
-        if (Input.GetButton("Fire1") && Charge < _maxCharge && !SpecialOnCd && HasShieldCharge)
-        {
-            Charge += Time.deltaTime;
-            SpecialReady = false;
-        }
-        if (Input.GetButtonUp("Fire2") && Charge < _maxCharge && !HasShieldCharge)
+        
+        if (Input.GetButtonUp("Fire2") && Charge < _maxCharge)
         {
             Charge = 0;
             SpecialReady = false;
         }
-        if (Input.GetButtonUp("Fire1") && Charge < _maxCharge && HasShieldCharge)
-        {
-            Charge = 0;
-            SpecialReady = false;
-        }
+        
     }
+
+	private void ChargeShieldSpecial()
+	{
+		//Debug.Log(_charge);
+		// Here the special is ready to be used when button is lifted up
+		if (Charge >= _maxCharge && GetComponent<PlayerScript>().HasSpear && !HasShieldCharge)
+		{
+			SpecialReady = true;
+		}
+		if (Charge >= _maxCharge && HasShieldCharge)
+		{
+			SpecialReady = true;
+		}
+
+		if (Input.GetButton("Fire1") && Charge < _maxCharge && !SpecialOnCd && HasShieldCharge)
+		{
+			Charge += Time.deltaTime;
+			SpecialReady = false;
+		}
+
+		if (Input.GetButtonUp("Fire1") && Charge < _maxCharge && HasShieldCharge)
+		{
+			Charge = 0;
+			SpecialReady = false;
+		}
+
+	}
     
     public IEnumerator SpecialCooldown(Specials special)
     {
@@ -196,7 +260,7 @@ public class SpecialsController : MonoBehaviour
         {
             case Specials.Kratos:
                 var c = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
-                StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.KratosCd));
+                //StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.KratosCd));
                 HasKratos = false;
                 SpecialOnCd = true;
                 c.RotateToTarget(transform);
@@ -207,7 +271,7 @@ public class SpecialsController : MonoBehaviour
                 SpecialOnCd = false;
                 break;
             case Specials.ReflectShield:
-                StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.ReflectShieldCd));
+                //StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.ReflectShieldCd));
                 yield return new WaitForSeconds(0.5f); // little delay so you can deflect multiple projectiles
                 HasReflectShield = false;
                 SpecialOnCd = true;
@@ -216,7 +280,7 @@ public class SpecialsController : MonoBehaviour
                 SpecialOnCd = false;
                 break;
             case Specials.SplitShot:
-                StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.SplitShotCd));
+                //StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.SplitShotCd));
                 HasSplitShot = false;
                 SpecialOnCd = true;
                 yield return new WaitForSeconds((float)SpecialsCooldowns.SplitShotCd);
@@ -224,7 +288,7 @@ public class SpecialsController : MonoBehaviour
                 SpecialOnCd = false;
                 break;
             case Specials.SpearBounce:
-                StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.SpearBounceCd));
+               // StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.SpearBounceCd));
                 HasSpearBounce = false;
                 SpecialOnCd = true;
                 var c2 = GameObject.FindGameObjectWithTag("Spear").GetComponent<SpearScript>();
@@ -235,7 +299,7 @@ public class SpecialsController : MonoBehaviour
                 TotalBounces = 3;
                 break;
             case Specials.ShieldCharge:
-                StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.ShieldChargeCd));
+              //  StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.ShieldChargeCd));
                 HasShieldCharge = false;
                 SpecialOnCd = true;
                 yield return new WaitForSeconds((float)SpecialsCooldowns.ShieldChargeCd);
@@ -243,7 +307,7 @@ public class SpecialsController : MonoBehaviour
                 SpecialOnCd = false;
                 break;
             case Specials.FastSpear:
-                StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.FastSpearCd));
+            //    StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.FastSpearCd));
                 HasFastSpear = false;
                 SpecialOnCd = true;
                 yield return new WaitForSeconds((float)SpecialsCooldowns.FastSpearCd);
@@ -251,7 +315,7 @@ public class SpecialsController : MonoBehaviour
                 SpecialOnCd = false;
                 break;
             case Specials.RotatingSpear:
-                StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.RotatingSpearCd));
+             //   StartCoroutine(_uIControler.SpecialCooldownBarController((float) SpecialsCooldowns.RotatingSpearCd));
                 HasRotatingSpear = false;
                 SpecialOnCd = true;
                 yield return new WaitForSeconds((float)SpecialsCooldowns.RotatingSpearCd);
@@ -263,7 +327,8 @@ public class SpecialsController : MonoBehaviour
 
     private void ActivateSpecial(Specials special)
     {
-        var specialText = GameObject.Find("SpecialText").GetComponent<TextMeshProUGUI>();
+		/**
+		var specialText = GameObject.Find("SpecialText").GetComponent<TextMeshProUGUI>();
         switch (special)
         {
             case Specials.Kratos:
@@ -336,7 +401,7 @@ public class SpecialsController : MonoBehaviour
                 HasRotatingSpear = true;
                 specialText.text = "Rotating Spear";
                 break;
-        }
+        }*/
     }
 
     public void FastSpearLeaveCd()

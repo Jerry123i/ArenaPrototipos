@@ -6,12 +6,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 [Flags] public enum EnemyDamageTypes{
-
 	NONE = 0,
 	MELEE = 1,
 	RANGED = 2,
 	ALL = 3
-
 }
 
 public class PlayerScript : MonoBehaviour {
@@ -29,7 +27,7 @@ public class PlayerScript : MonoBehaviour {
 	public GameObject grab;
 	private GameObject grabInstance;
 	
-	private SpecialsController _specialsController;
+	public SpecialsController _specialsController;
 	
 
 	public float shieldCd = 2.0f;
@@ -49,8 +47,7 @@ public class PlayerScript : MonoBehaviour {
 
 	public float moveVelocity;
 	public float dodgeVelocity;
-	public float dodgeTime;
-	
+	public float dodgeTime;	
 	
 	private bool hasSpear;
 	public bool HasSpear
@@ -295,6 +292,8 @@ public class PlayerScript : MonoBehaviour {
 
 	private void ShieldCharge()
 	{
+		if (!_specialsController.HasShieldCharge)
+			return;
 		StartCoroutine(_specialsController.SpecialCooldown(SpecialsController.Specials.ShieldCharge));
 		var newShield = Instantiate(shield, new Vector3(transform.position.x, transform.position.y), transform.rotation, transform);
 		newShield.transform.localScale = new Vector3(1.7f, 1.7f, 0);

@@ -82,7 +82,7 @@ public class PlayerUIControler : MonoBehaviour {
 		shieldClock = 0;
 	}
 
-	public IEnumerator SpecialCooldownBarController(float cd)
+	/*public IEnumerator SpecialCooldownBarController(float cd)
 	{
 		SpecialBar.SetActive(true);
 		SpecialBar.GetComponent<Image>().fillAmount = 0;
@@ -97,6 +97,6 @@ public class PlayerUIControler : MonoBehaviour {
 		} while (startTime < cd);
 
 		SpecialBar.SetActive(false);
-	}
+	}*/
 
 }
